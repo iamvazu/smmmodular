@@ -6,10 +6,9 @@ const Footer = () => {
         <footer className="bg-primary text-white pt-20 pb-10 border-t border-secondary/10">
             <div className="container-custom">
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-12 mb-16">
-                    {/* Brand & About */}
                     <div className="space-y-6">
-                        <Link to="/" className="text-3xl font-playfair font-bold">
-                            SMM<span className="text-secondary">.</span>
+                        <Link to="/" className="inline-block">
+                            <img src="images/SMM-Logo.png" alt="SMM Modular Furniture" className="h-16 w-auto object-contain" />
                         </Link>
                         <p className="text-white/60 font-inter text-sm leading-relaxed max-w-xs">
                             SMM Modular Furniture has been redefining interior design in Bangalore since 2004. We combine traditional craftsmanship with modern technology.

@@ -33,11 +33,12 @@ const Navbar = () => {
         <nav className={`fixed top-0 left-0 w-full z-50 transition-all duration-500 ${isScrolled ? 'bg-primary/95 backdrop-blur-lg py-4 shadow-xl' : 'bg-transparent py-6'}`}>
             <div className="container-custom flex justify-between items-center text-white">
                 {/* Logo */}
-                <Link to="/" className="relative group flex items-center gap-2">
-                    <div className="w-10 h-10 bg-secondary flex items-center justify-center font-playfair font-bold text-primary text-xl">S</div>
-                    <span className="font-playfair text-2xl md:text-3xl font-bold tracking-tighter">
-                        SMM<span className="text-secondary">.</span>
-                    </span>
+                <Link to="/" className="relative group">
+                    <img
+                        src="images/SMM-Logo.png"
+                        alt="SMM Modular Furniture"
+                        className="h-12 md:h-16 w-auto object-contain transition-transform duration-500 group-hover:scale-105"
+                    />
                 </Link>
 
                 {/* Desktop Navigation */}
