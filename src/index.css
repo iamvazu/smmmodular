@@ -1,0 +1,74 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+    html {
+        @apply scroll-smooth;
+    }
+
+    body {
+        @apply font-inter text-darkGray bg-white overflow-x-hidden selection:bg-secondary selection:text-white;
+    }
+
+    h1,
+    h2,
+    h3,
+    h4,
+    h5,
+    h6 {
+        @apply font-playfair;
+    }
+}
+
+@layer components {
+    .container-custom {
+        @apply max-w-1400 mx-auto px-6;
+    }
+
+    .section-padding {
+        @apply py-60 md:py-80 lg:py-120;
+    }
+
+    .btn-primary {
+        @apply bg-secondary text-white px-8 py-4 font-space font-medium transition-all duration-300 hover:bg-opacity-90 active:scale-95;
+    }
+
+    .btn-outline {
+        @apply border border-white text-white px-8 py-4 font-space font-medium transition-all duration-300 hover:bg-white hover:text-primary active:scale-95;
+    }
+}
+
+/* Custom Cursor */
+.custom-cursor {
+    width: 20px;
+    height: 20px;
+    border: 1px solid #D4A853;
+    border-radius: 50%;
+    position: fixed;
+    pointer-events: none;
+    z-index: 9999;
+    transition: transform 0.1s ease-out;
+    mix-blend-mode: difference;
+}
+
+/* Glassmorphism Navigation */
+.glass-nav {
+    @apply bg-white/10 backdrop-blur-md border-b border-white/20 transition-all duration-500;
+}
+
+.glass-nav-scrolled {
+    @apply bg-primary/95 border-b border-secondary/20 py-2;
+}
+
+/* Animations */
+.reveal-up {
+    opacity: 0;
+    transform: translateY(30px);
+    transition: all 0.8s cubic-bezier(0.25, 0.1, 0.25, 1);
+}
+
+.reveal-up.active {
+    opacity: 1;
+    transform: translateY(0);
+}
