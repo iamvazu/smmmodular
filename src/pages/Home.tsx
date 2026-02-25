@@ -38,50 +38,52 @@ const Home = () => {
     return (
         <div className="bg-white">
             {/* Hero Section */}
-            <section ref={heroRef} className="relative h-screen overflow-hidden flex flex-col md:flex-row">
-                {/* Left: Image */}
-                <div className="relative w-full md:w-3/5 h-[60vh] md:h-full overflow-hidden">
+            <section ref={heroRef} className="relative min-h-[100dvh] flex flex-col lg:flex-row overflow-hidden bg-primary">
+                {/* Visual Area (Image) */}
+                <div className="relative w-full lg:w-7/12 h-[45vh] lg:h-auto min-h-[350px] overflow-hidden order-1 lg:order-1 lg:clip-path-slant">
                     <motion.div style={{ y: heroImageY }} className="absolute inset-0">
                         <img
                             src="images/services/residential-projects/img(18).webp"
                             alt="Luxury Living Room"
                             className="w-full h-full object-cover"
                         />
-                        <div className="absolute inset-0 bg-black/20"></div>
+                        <div className="absolute inset-0 bg-primary/20 lg:bg-transparent"></div>
                     </motion.div>
                 </div>
 
-                {/* Right: Content */}
-                <div className="w-full md:w-2/5 h-[40vh] md:h-full bg-primary flex items-center p-8 md:p-16 lg:p-24 relative z-10">
+                {/* Content Area */}
+                <div className="w-full lg:w-5/12 min-h-[55vh] lg:min-h-screen bg-primary flex items-center p-6 sm:p-12 xl:p-20 relative z-10 order-2 lg:order-2">
                     <motion.div
-                        initial={{ opacity: 0, x: 50 }}
-                        animate={{ opacity: 1, x: 0 }}
-                        transition={{ duration: 1, delay: 0.5 }}
-                        className="space-y-8"
+                        initial={{ opacity: 0, y: 30 }}
+                        whileInView={{ opacity: 1, y: 0 }}
+                        viewport={{ once: true }}
+                        transition={{ duration: 1, delay: 0.2 }}
+                        className="space-y-6 md:space-y-10 w-full"
                     >
-                        <div className="w-20 h-1 bg-secondary mb-8"></div>
-                        <h1 className="text-4xl md:text-5xl lg:text-7xl font-playfair font-bold text-white leading-tight">
-                            Crafting Timeless Spaces, <span className="text-secondary">One Module</span> at a Time.
+                        <div className="w-16 h-1 bg-secondary mb-6 md:mb-10"></div>
+                        <h1 className="text-3xl sm:text-4xl md:text-5xl xl:text-7xl font-playfair font-bold text-white leading-[1.15]">
+                            Crafting Timeless Spaces, <span className="text-secondary italic font-normal">One Module</span> at a Time.
                         </h1>
-                        <p className="text-white/60 font-inter text-lg md:text-xl max-w-lg leading-relaxed">
-                            Bangalore's Premier Modular Furniture & Interior Design Studio | 20+ Years of Transforming Houses into Homes.
+                        <p className="text-white/60 font-inter text-sm md:text-lg max-w-xl leading-relaxed">
+                            Bangalore's Premier Modular Furniture & Interior Design Studio. 20+ years of transforming aspirations into exquisite living realities.
                         </p>
+
                         <div className="flex flex-col sm:flex-row gap-4 pt-4">
-                            <button className="btn-primary flex items-center justify-center gap-2 group">
+                            <button className="btn-primary w-full sm:w-auto">
                                 Book Free Consultation
                                 <ArrowRight size={18} className="group-hover:translate-x-2 transition-transform" />
                             </button>
-                            <button className="btn-outline">Explore Our Work</button>
+                            <button className="btn-outline w-full sm:w-auto">Explore Our Work</button>
                         </div>
 
-                        <div className="pt-10 flex gap-8">
-                            <div className="text-white/80">
-                                <p className="text-2xl font-bold text-secondary font-playfair">5000+</p>
-                                <p className="text-[10px] uppercase tracking-widest font-space">Happy Homes</p>
+                        <div className="pt-8 md:pt-12 flex flex-wrap gap-8 md:gap-12 border-t border-white/5">
+                            <div>
+                                <p className="text-2xl md:text-3xl font-bold text-secondary font-playfair tracking-tighter">5000+</p>
+                                <p className="text-[9px] md:text-[10px] uppercase tracking-[0.2em] font-space text-white/40 font-bold">Happy Homes</p>
                             </div>
-                            <div className="text-white/80">
-                                <p className="text-2xl font-bold text-secondary font-playfair">15-Year</p>
-                                <p className="text-[10px] uppercase tracking-widest font-space">Warranty</p>
+                            <div>
+                                <p className="text-2xl md:text-3xl font-bold text-secondary font-playfair tracking-tighter">15-Year</p>
+                                <p className="text-[9px] md:text-[10px] uppercase tracking-[0.2em] font-space text-white/40 font-bold">Warranty</p>
                             </div>
                         </div>
                     </motion.div>
@@ -89,9 +91,9 @@ const Home = () => {
             </section>
 
             {/* Stats Bar */}
-            <section className="bg-warmWhite py-12 border-b border-black/5">
+            <section className="bg-warmWhite py-10 md:py-16 border-b border-black/5">
                 <div className="container-custom">
-                    <div className="grid grid-cols-2 lg:grid-cols-4 gap-8">
+                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8 md:gap-12">
                         {stats.map((stat, i) => (
                             <motion.div
                                 key={i}
@@ -99,14 +101,14 @@ const Home = () => {
                                 whileInView={{ opacity: 1, y: 0 }}
                                 viewport={{ once: true }}
                                 transition={{ delay: i * 0.1 }}
-                                className="flex items-center space-x-4"
+                                className="flex items-center space-x-5"
                             >
-                                <div className="p-3 bg-white rounded-full shadow-sm">
+                                <div className="p-4 bg-white rounded-2xl shadow-sm text-secondary">
                                     {stat.icon}
                                 </div>
                                 <div>
-                                    <h3 className="text-2xl font-playfair font-bold text-primary">{stat.value}</h3>
-                                    <p className="text-xs uppercase tracking-wider text-darkGray/60 font-space font-medium">{stat.label}</p>
+                                    <h3 className="text-2xl md:text-3xl font-playfair font-bold text-primary tabular-nums">{stat.value}</h3>
+                                    <p className="text-[10px] md:text-xs uppercase tracking-widest text-darkGray/50 font-space font-bold">{stat.label}</p>
                                 </div>
                             </motion.div>
                         ))}
@@ -115,21 +117,21 @@ const Home = () => {
             </section>
 
             {/* The SMM Difference */}
-            <section className="section-padding overflow-hidden">
+            <section className="section-padding overflow-hidden bg-white">
                 <div className="container-custom">
-                    <div className="flex flex-col md:flex-row justify-between items-end mb-20 gap-8">
-                        <div className="max-w-2xl">
-                            <h4 className="font-space text-xs font-bold uppercase tracking-widest text-secondary mb-4 italic">The SMM Edge</h4>
-                            <h2 className="text-4xl md:text-6xl font-playfair font-bold text-primary leading-tight">
-                                Why Discerning Clients Choose SMM Modular.
+                    <div className="flex flex-col lg:flex-row lg:items-end justify-between mb-16 md:mb-24 gap-10">
+                        <div className="max-w-3xl">
+                            <h4 className="font-space text-xs font-bold uppercase tracking-widest text-secondary mb-4 italic">The SMM Advantage</h4>
+                            <h2 className="text-3xl sm:text-4xl md:text-6xl font-playfair font-bold text-primary leading-[1.1]">
+                                Why Bangalore's Elite <br className="hidden md:block" /> Trust SMM Modular Furniture.
                             </h2>
                         </div>
-                        <p className="text-darkGray/60 max-w-sm font-inter">
-                            SMM Modular Furniture stands apart as Bangalore's most trusted interior design partner. Our transparent pricing model eliminates surprise costs.
+                        <p className="text-darkGray/60 max-w-sm font-inter text-base md:text-lg leading-relaxed">
+                            We don't just design offices and homes; we build the foundations for your future growth and comfort.
                         </p>
                     </div>
 
-                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
+                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 md:gap-8">
                         {features.map((feature, i) => (
                             <motion.div
                                 key={i}
@@ -137,14 +139,13 @@ const Home = () => {
                                 whileInView={{ opacity: 1, y: 0 }}
                                 viewport={{ once: true }}
                                 transition={{ delay: i * 0.1 }}
-                                whileHover={{ y: -10 }}
-                                className="p-10 bg-white border border-black/5 shadow-xl shadow-black/[0.02] group transition-all duration-500 hover:border-secondary/30"
+                                className="p-8 md:p-10 bg-warmWhite/50 border border-black/5 hover:bg-white hover:shadow-2xl hover:shadow-black/[0.05] group transition-all duration-500 rounded-3xl"
                             >
-                                <div className="w-12 h-12 bg-tertiary text-secondary flex items-center justify-center mb-8 rounded-lg group-hover:bg-secondary group-hover:text-white transition-colors duration-500">
+                                <div className="w-14 h-14 bg-white shadow-sm text-secondary flex items-center justify-center mb-8 rounded-2xl group-hover:bg-secondary group-hover:text-white transition-all duration-500">
                                     {feature.icon}
                                 </div>
-                                <h3 className="text-2xl font-playfair font-bold mb-4 group-hover:text-secondary transition-colors duration-500">{feature.title}</h3>
-                                <p className="text-darkGray/60 font-inter text-sm leading-relaxed">{feature.desc}</p>
+                                <h3 className="text-xl md:text-2xl font-playfair font-bold mb-4 group-hover:text-secondary transition-colors duration-500">{feature.title}</h3>
+                                <p className="text-darkGray/60 font-inter text-sm md:text-base leading-relaxed">{feature.desc}</p>
                             </motion.div>
                         ))}
                     </div>
@@ -152,22 +153,21 @@ const Home = () => {
             </section>
 
             {/* Process Section */}
-            <section className="bg-primary py-24 text-white overflow-hidden relative">
-                {/* Background Text */}
-                <div className="absolute top-0 right-0 text-[20vw] font-playfair font-bold text-white/[0.03] leading-none select-none pointer-events-none translate-x-1/4 -translate-y-1/4">
-                    PROCESS
+            <section className="bg-primary py-20 md:py-32 text-white overflow-hidden relative">
+                <div className="absolute top-0 right-0 text-[15vw] font-playfair font-bold text-white/[0.02] leading-none select-none pointer-events-none translate-x-1/4 -translate-y-1/4">
+                    REDESIGN
                 </div>
 
                 <div className="container-custom relative z-10">
-                    <div className="text-center max-w-3xl mx-auto mb-20">
-                        <h4 className="font-space text-xs font-bold uppercase tracking-widest text-secondary mb-4">Our Method</h4>
-                        <h2 className="text-4xl md:text-5xl font-playfair font-bold text-white mb-6">
-                            From Blueprint to Reality in 45 Days.
+                    <div className="text-center max-w-3xl mx-auto mb-16 md:mb-24">
+                        <h4 className="font-space text-xs font-bold uppercase tracking-widest text-secondary mb-6">Execution Method</h4>
+                        <h2 className="text-3xl sm:text-4xl md:text-5xl font-playfair font-bold text-white mb-8">
+                            Precision Engineering <br className="hidden sm:block" /> in Every Module.
                         </h2>
                         <div className="w-20 h-1 bg-secondary mx-auto"></div>
                     </div>
 
-                    <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-5 gap-0 border-t border-white/10">
+                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-8 lg:gap-0 lg:border-t lg:border-white/10">
                         {processSteps.map((step, i) => (
                             <motion.div
                                 key={i}
@@ -175,117 +175,84 @@ const Home = () => {
                                 whileInView={{ opacity: 1, x: 0 }}
                                 viewport={{ once: true }}
                                 transition={{ delay: i * 0.2 }}
-                                className="p-10 border-r border-white/10 last:border-r-0 relative group"
+                                className="p-8 lg:p-10 lg:border-r lg:border-white/10 last:border-r-0 relative group bg-white/5 lg:bg-transparent rounded-2xl lg:rounded-none"
                             >
-                                <span className="block text-5xl font-playfair font-bold text-white/10 group-hover:text-secondary/20 transition-colors duration-500 mb-8">{step.num}</span>
-                                <h3 className="text-xl font-playfair font-bold mb-4 text-white">{step.title}</h3>
-                                <p className="text-white/50 text-sm font-inter leading-relaxed">{step.desc}</p>
-
-                                {/* Connector for desktop */}
-                                {i < processSteps.length - 1 && (
-                                    <div className="hidden lg:block absolute top-10 -right-4 text-secondary z-20">
-                                        <ArrowRight size={32} strokeWidth={1} />
-                                    </div>
-                                )}
+                                <span className="block text-4xl md:text-5xl font-playfair font-bold text-white/10 group-hover:text-secondary/20 transition-colors duration-500 mb-8">{step.num}</span>
+                                <h3 className="text-lg md:text-xl font-playfair font-bold mb-4 text-white tracking-tight">{step.title}</h3>
+                                <p className="text-white/40 text-xs md:text-sm font-inter leading-relaxed">{step.desc}</p>
                             </motion.div>
                         ))}
                     </div>
                 </div>
             </section>
 
-            {/* Services Grid */}
+            {/* Segments Preview */}
             <section className="section-padding bg-warmWhite">
                 <div className="container-custom">
-                    <div className="flex flex-col md:flex-row justify-between items-center mb-16">
-                        <h2 className="text-4xl md:text-5xl font-playfair font-bold text-primary">Our Design Segments</h2>
-                        <Link to="/services" className="text-secondary font-space text-sm font-bold uppercase tracking-wider flex items-center gap-2 hover:gap-4 transition-all mt-4 md:mt-0">
-                            View All Services <ArrowRight size={16} />
+                    <div className="flex flex-col sm:flex-row justify-between items-end mb-12 md:mb-20 gap-6">
+                        <h2 className="text-3xl sm:text-4xl md:text-6xl font-playfair font-bold text-primary">Design Segments.</h2>
+                        <Link to="/services" className="text-secondary font-space text-[10px] md:text-xs font-bold uppercase tracking-[0.2em] flex items-center gap-2 hover:gap-4 transition-all">
+                            Explore All Services <ArrowRight size={16} />
                         </Link>
                     </div>
 
-                    <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-                        {/* Residential */}
-                        <motion.div
-                            whileHover={{ y: -10 }}
-                            className="relative aspect-[3/4] overflow-hidden group cursor-pointer"
-                        >
-                            <img src="/images/services/residential-projects/img(25).webp" className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110" alt="Residential" />
-                            <div className="absolute inset-0 bg-gradient-to-t from-primary/90 via-transparent to-transparent"></div>
-                            <div className="absolute bottom-0 left-0 p-10 text-white">
-                                <h3 className="text-3xl font-playfair font-bold mb-2">Residential</h3>
-                                <p className="text-white/60 text-sm mb-6 max-w-[200px]">Luxury homes designed for modern living.</p>
-                                <Link to="/residential" className="inline-block p-4 border border-white/20 hover:bg-secondary hover:border-secondary transition-all">
-                                    <ArrowRight size={20} />
-                                </Link>
-                            </div>
-                        </motion.div>
-
-                        {/* Commercial */}
-                        <motion.div
-                            whileHover={{ y: -10 }}
-                            className="relative aspect-[3/4] overflow-hidden group cursor-pointer"
-                        >
-                            <img src="/images/services/commercial-projects/img(1).webp" className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110" alt="Commercial" />
-                            <div className="absolute inset-0 bg-gradient-to-t from-primary/90 via-transparent to-transparent"></div>
-                            <div className="absolute bottom-0 left-0 p-10 text-white">
-                                <h3 className="text-3xl font-playfair font-bold mb-2">Commercial</h3>
-                                <p className="text-white/60 text-sm mb-6 max-w-[200px]">Strategic designs for retail & hospitality.</p>
-                                <Link to="/commercial" className="inline-block p-4 border border-white/20 hover:bg-secondary hover:border-secondary transition-all">
-                                    <ArrowRight size={20} />
-                                </Link>
-                            </div>
-                        </motion.div>
-
-                        {/* Corporate */}
-                        <motion.div
-                            whileHover={{ y: -10 }}
-                            className="relative aspect-[3/4] overflow-hidden group cursor-pointer"
-                        >
-                            <img src="/images/services/Corporate-Office.jpg" className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110" alt="Corporate" />
-                            <div className="absolute inset-0 bg-gradient-to-t from-primary/90 via-transparent to-transparent"></div>
-                            <div className="absolute bottom-0 left-0 p-10 text-white">
-                                <h3 className="text-3xl font-playfair font-bold mb-2">Corporate</h3>
-                                <p className="text-white/60 text-sm mb-6 max-w-[200px]">Productive workspaces for high performance.</p>
-                                <Link to="/corporate" className="inline-block p-4 border border-white/20 hover:bg-secondary hover:border-secondary transition-all">
-                                    <ArrowRight size={20} />
-                                </Link>
-                            </div>
-                        </motion.div>
+                    <div className="grid grid-cols-1 md:grid-cols-3 gap-6 md:gap-10">
+                        {/* Segments Cards */}
+                        {[
+                            { title: "Residential", path: "/residential", img: "/images/services/residential-projects/img(25).webp", desc: "Luxury homes for modern Bangalore." },
+                            { title: "Commercial", path: "/commercial", img: "/images/services/commercial-projects/img(1).webp", desc: "High-traffic retail & dining spaces." },
+                            { title: "Corporate", path: "/corporate", img: "/images/services/Corporate-Office.jpg", desc: "Workspaces optimized for growth." },
+                        ].map((segment, i) => (
+                            <motion.div
+                                key={i}
+                                whileHover={{ y: -12 }}
+                                className="relative aspect-[4/5] overflow-hidden group rounded-[2.5rem] shadow-2xl shadow-black/10"
+                            >
+                                <img src={segment.img} className="w-full h-full object-cover transition-transform duration-1000 group-hover:scale-110" alt={segment.title} />
+                                <div className="absolute inset-0 bg-gradient-to-t from-primary/95 via-primary/20 to-transparent"></div>
+                                <div className="absolute bottom-0 left-0 p-8 md:p-12 text-white w-full">
+                                    <h3 className="text-3xl md:text-4xl font-playfair font-bold mb-3">{segment.title}</h3>
+                                    <p className="text-white/50 text-sm md:text-base mb-8 max-w-[240px] leading-relaxed">{segment.desc}</p>
+                                    <Link to={segment.path} className="inline-flex items-center justify-center w-14 h-14 rounded-full border border-white/20 hover:bg-secondary hover:border-secondary transition-all">
+                                        <ArrowRight size={24} />
+                                    </Link>
+                                </div>
+                            </motion.div>
+                        ))}
                     </div>
                 </div>
             </section>
 
-            {/* Factory Preview */}
-            <section className="bg-primary py-24 overflow-hidden">
+            {/* In-House Production / Factory Preview */}
+            <section className="bg-white py-20 md:py-32 overflow-hidden">
                 <div className="container-custom">
-                    <div className="flex flex-col lg:flex-row items-center gap-16">
-                        <div className="w-full lg:w-1/2 space-y-8">
-                            <h4 className="font-space text-xs font-bold uppercase tracking-widest text-secondary italic">In-House Production</h4>
-                            <h2 className="text-4xl md:text-5xl lg:text-6xl font-playfair font-bold text-white">The Precision of Italian BIESSE Machinery.</h2>
-                            <p className="text-white/60 font-inter text-lg leading-relaxed">
-                                Our state-of-the-art manufacturing facility in Bangalore ensures that every piece of furniture meets international quality standards. No outsourcing, just pure craftsmanship.
+                    <div className="flex flex-col lg:flex-row items-center gap-16 xl:gap-24">
+                        <div className="w-full lg:w-1/2 space-y-8 md:space-y-12 order-2 lg:order-1">
+                            <h4 className="font-space text-[10px] md:text-xs font-bold uppercase tracking-[0.3em] text-secondary">Advanced Production</h4>
+                            <h2 className="text-3xl sm:text-4xl md:text-6xl font-playfair font-bold text-primary leading-tight">Italian BIESSE Machinery <br className="hidden md:block" /> for Unrivaled Precision.</h2>
+                            <p className="text-darkGray/60 font-inter text-base md:text-xl leading-relaxed">
+                                We own every stage of the process. Our 10,000 sqft facility eliminates middle-men, ensuring your furniture is built to global standards under our rigorous oversight.
                             </p>
-                            <div className="grid grid-cols-2 gap-8 pt-4">
+                            <div className="grid grid-cols-2 gap-10">
                                 <div>
-                                    <p className="text-3xl font-bold font-playfair text-secondary">10,000+</p>
-                                    <p className="text-[10px] uppercase tracking-widest text-white/40 font-space">Sqft Factory Space</p>
+                                    <p className="text-2xl md:text-4xl font-bold font-playfair text-secondary tracking-tighter tabular-nums">10,000+</p>
+                                    <p className="text-[9px] md:text-[10px] uppercase tracking-widest text-darkGray/40 font-bold font-space">Sqft Factory Space</p>
                                 </div>
                                 <div>
-                                    <p className="text-3xl font-bold font-playfair text-secondary">ISO 9001</p>
-                                    <p className="text-[10px] uppercase tracking-widest text-white/40 font-space">Certified Quality</p>
+                                    <p className="text-2xl md:text-4xl font-bold font-playfair text-secondary tracking-tighter">ISO 9001</p>
+                                    <p className="text-[9px] md:text-[10px] uppercase tracking-widest text-darkGray/40 font-bold font-space">Certified Quality</p>
                                 </div>
                             </div>
-                            <Link to="/our-factory" className="btn-primary inline-flex items-center gap-2">
-                                Tour Our Factory <ArrowRight size={18} />
+                            <Link to="/our-factory" className="btn-primary inline-flex lg:px-12">
+                                Visit Our Factory <ArrowRight size={18} />
                             </Link>
                         </div>
-                        <div className="w-full lg:w-1/2 relative">
-                            <div className="aspect-video bg-darkGray overflow-hidden shadow-2xl">
+                        <div className="w-full lg:w-1/2 relative order-1 lg:order-2">
+                            <div className="aspect-[4/3] rounded-[3rem] overflow-hidden shadow-2xl relative z-10">
                                 <img src="/images/factory/img(1).jpg" className="w-full h-full object-cover" alt="SMM Factory" />
                             </div>
-                            {/* Decorative elements */}
-                            <div className="absolute -bottom-6 -right-6 w-32 h-32 bg-secondary/10 -z-10"></div>
-                            <div className="absolute -top-6 -left-6 w-32 h-32 bg-white/5 -z-10"></div>
+                            <div className="absolute -top-10 -right-10 w-64 h-64 bg-secondary/5 rounded-full -z-0"></div>
+                            <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-full h-full border border-secondary/10 rounded-[4rem] translate-x-10 translate-y-10 -z-0"></div>
                         </div>
                     </div>
                 </div>
@@ -320,18 +287,18 @@ const Home = () => {
             </section>
 
             {/* Contact CTA */}
-            <section className="bg-secondary p-12 md:p-24 relative overflow-hidden">
-                <div className="absolute top-0 left-0 w-full h-full bg-[url('/images/footer_bg.png')] opacity-10 mix-blend-overlay"></div>
-                <div className="container-custom relative z-10 flex flex-col lg:flex-row justify-between items-center gap-12">
-                    <div className="max-w-2xl text-primary">
-                        <h2 className="text-4xl md:text-6xl font-playfair font-bold mb-6 italic">Ready to transform your space?</h2>
-                        <p className="text-xl font-inter opacity-80 leading-relaxed">
-                            Join 5000+ happy homeowners in Bangalore. Book a free design consultation today and get a personalized 3D visualization.
+            <section className="bg-secondary py-16 md:py-32 relative overflow-hidden">
+                <div className="absolute inset-0 bg-black/5 opacity-50"></div>
+                <div className="container-custom relative z-10">
+                    <div className="max-w-5xl mx-auto text-primary text-center">
+                        <h2 className="text-3xl sm:text-4xl md:text-7xl font-playfair font-bold mb-8 italic tracking-tighter">Start your transformational design journey today.</h2>
+                        <p className="text-base md:text-2xl font-inter opacity-80 leading-relaxed max-w-2xl mx-auto mb-12">
+                            Expert consultation, photorealistic 3D visualization, and a 15-year warranty guarantee.
                         </p>
+                        <button className="bg-primary text-white px-10 md:px-16 py-5 md:py-7 font-space font-bold uppercase tracking-[0.2em] transform transition-all hover:scale-105 hover:bg-black active:scale-95 shadow-3xl text-[10px] md:text-sm">
+                            Book Free Consult
+                        </button>
                     </div>
-                    <button className="bg-primary text-white px-12 py-6 font-space font-bold uppercase tracking-[0.2em] transform transition-all hover:scale-105 active:scale-95 shadow-2xl">
-                        Get Started Now
-                    </button>
                 </div>
             </section>
         </div>

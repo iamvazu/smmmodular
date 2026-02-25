@@ -45,21 +45,37 @@ const Services = () => {
     return (
         <div className="min-h-screen">
             {/* Hero */}
-            <section className="relative min-h-[80vh] flex items-center overflow-hidden">
+            <section className="relative min-h-[60vh] md:min-h-[80vh] flex items-center overflow-hidden">
                 <div className="absolute inset-0 z-0">
                     <img src="images/services/services.jpg" className="w-full h-full object-cover" alt="SMM Services" />
-                    <div className="absolute inset-0 bg-primary/80 backdrop-blur-[1px]"></div>
+                    <div className="absolute inset-0 bg-primary/80 backdrop-blur-[2px]"></div>
                 </div>
 
-                <div className="container-custom relative z-10 text-white">
+                <div className="container-custom relative z-10 text-white py-20 md:py-32">
                     <div className="max-w-4xl">
-                        <h4 className="font-space text-xs font-bold uppercase tracking-[0.3em] text-secondary mb-6">Our Expertise</h4>
-                        <h1 className="text-5xl md:text-7xl font-playfair font-bold mb-8 leading-tight">
-                            Comprehensive Interior <br /><span className="italic text-secondary">Solutions.</span>
-                        </h1>
-                        <p className="text-xl text-white/60 font-inter leading-relaxed max-w-2xl">
+                        <motion.h4
+                            initial={{ opacity: 0, y: 20 }}
+                            animate={{ opacity: 1, y: 0 }}
+                            className="font-space text-[10px] md:text-xs font-bold uppercase tracking-[0.3em] text-secondary mb-6"
+                        >
+                            Our Expertise
+                        </motion.h4>
+                        <motion.h1
+                            initial={{ opacity: 0, y: 30 }}
+                            animate={{ opacity: 1, y: 0 }}
+                            transition={{ delay: 0.1 }}
+                            className="text-4xl sm:text-5xl md:text-7xl font-playfair font-bold mb-8 leading-[1.1]"
+                        >
+                            Comprehensive Interior <br className="hidden sm:block" /><span className="italic text-secondary">Solutions.</span>
+                        </motion.h1>
+                        <motion.p
+                            initial={{ opacity: 0, y: 20 }}
+                            animate={{ opacity: 1, y: 0 }}
+                            transition={{ delay: 0.2 }}
+                            className="text-lg md:text-xl text-white/60 font-inter leading-relaxed max-w-2xl"
+                        >
                             From concept to completion, we bring your vision to life with custom designs, quality materials, and expert installation for any space.
-                        </p>
+                        </motion.p>
                     </div>
                 </div>
             </section>
@@ -67,7 +83,7 @@ const Services = () => {
             {/* Services Grid */}
             <section className="section-padding bg-warmWhite">
                 <div className="container-custom">
-                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-12">
+                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8 md:gap-12">
                         {categories.map((service, i) => (
                             <motion.div
                                 key={i}
@@ -75,19 +91,19 @@ const Services = () => {
                                 whileInView={{ opacity: 1, y: 0 }}
                                 viewport={{ once: true }}
                                 transition={{ delay: i * 0.1 }}
-                                className="bg-white group"
+                                className="bg-white group rounded-3xl overflow-hidden shadow-sm hover:shadow-2xl transition-all duration-500"
                             >
-                                <div className="relative aspect-square overflow-hidden mb-8">
+                                <div className="relative aspect-[4/3] overflow-hidden">
                                     <img src={service.image} alt={service.title} className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110" />
                                     <div className="absolute inset-0 bg-primary/20 group-hover:bg-primary/40 transition-colors"></div>
-                                    <div className="absolute top-8 left-8 w-16 h-16 bg-white flex items-center justify-center text-primary group-hover:bg-secondary group-hover:text-white transition-all duration-500 shadow-xl">
+                                    <div className="absolute bottom-6 left-6 w-14 h-14 bg-white flex items-center justify-center text-primary group-hover:bg-secondary group-hover:text-white transition-all duration-500 shadow-xl rounded-2xl">
                                         {service.icon}
                                     </div>
                                 </div>
-                                <div className="px-4 pb-8">
-                                    <h3 className="text-3xl font-playfair font-bold mb-4 group-hover:text-secondary transition-colors">{service.title}</h3>
-                                    <p className="text-darkGray/60 font-inter text-sm leading-relaxed mb-8">{service.desc}</p>
-                                    <button className="flex items-center gap-2 text-primary font-space font-bold text-xs uppercase tracking-widest group-hover:text-secondary">
+                                <div className="p-8 md:p-10">
+                                    <h3 className="text-2xl md:text-3xl font-playfair font-bold mb-4 group-hover:text-secondary transition-colors">{service.title}</h3>
+                                    <p className="text-darkGray/60 font-inter text-sm md:text-base leading-relaxed mb-8">{service.desc}</p>
+                                    <button className="flex items-center gap-2 text-primary font-space font-bold text-[10px] md:text-xs uppercase tracking-widest group-hover:text-secondary group-hover:gap-4 transition-all">
                                         Learn More <ChevronRight size={16} />
                                     </button>
                                 </div>
@@ -98,13 +114,13 @@ const Services = () => {
             </section>
 
             {/* Segments Section */}
-            <section className="section-padding overflow-hidden">
+            <section className="section-padding overflow-hidden bg-white">
                 <div className="container-custom">
-                    <div className="text-center mb-20">
-                        <h2 className="text-4xl md:text-6xl font-playfair font-bold text-primary italic">Tailored for Every Segment.</h2>
+                    <div className="text-center mb-16 md:mb-24">
+                        <h2 className="text-3xl sm:text-4xl md:text-6xl font-playfair font-bold text-primary italic">Tailored for Every Segment.</h2>
                     </div>
 
-                    <div className="grid grid-cols-1 lg:grid-cols-3 gap-0 border border-black/5">
+                    <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 lg:gap-0 border lg:border-black/5 rounded-[2rem] overflow-hidden lg:rounded-none lg:border-none">
                         {[
                             { title: "Residential", path: "/residential", icon: <Home /> },
                             { title: "Commercial", path: "/commercial", icon: <Building2 /> },
@@ -113,20 +129,19 @@ const Services = () => {
                             <Link
                                 key={i}
                                 to={segment.path}
-                                className="group relative p-16 border-r last:border-r-0 border-black/5 hover:bg-primary transition-all duration-500 overflow-hidden"
+                                className="group relative p-10 md:p-16 lg:border-r last:border-r-0 border-black/5 hover:bg-primary transition-all duration-500 bg-warmWhite lg:bg-transparent"
                             >
                                 <div className="relative z-10">
                                     <div className="text-secondary mb-8 transition-transform duration-500 group-hover:-translate-y-2">
                                         {segment.icon}
                                     </div>
-                                    <h3 className="text-4xl font-playfair font-bold mb-4 group-hover:text-white transition-colors">{segment.title}</h3>
-                                    <p className="text-darkGray/60 group-hover:text-white/40 mb-8 transition-colors">Bespoke solutions designed for {segment.title.toLowerCase()} excellence.</p>
-                                    <div className="text-secondary opacity-0 group-hover:opacity-100 transition-all duration-500 flex items-center gap-2 font-space text-xs font-bold uppercase tracking-widest">
+                                    <h3 className="text-3xl md:text-4xl font-playfair font-bold mb-4 group-hover:text-white transition-colors">{segment.title}</h3>
+                                    <p className="text-darkGray/60 group-hover:text-white/40 mb-8 transition-colors text-sm md:text-base">Bespoke solutions designed for {segment.title.toLowerCase()} excellence.</p>
+                                    <div className="text-secondary opacity-0 lg:group-hover:opacity-100 transition-all duration-500 flex items-center gap-2 font-space text-[10px] md:text-xs font-bold uppercase tracking-widest">
                                         View Segment <ArrowRight size={14} />
                                     </div>
                                 </div>
-                                {/* Decorative circle */}
-                                <div className="absolute -bottom-10 -right-10 w-40 h-40 bg-secondary/5 rounded-full group-hover:scale-[3] transition-transform duration-700"></div>
+                                <div className="absolute -bottom-10 -right-10 w-40 h-40 bg-secondary/5 rounded-full lg:group-hover:scale-[3] transition-transform duration-700"></div>
                             </Link>
                         ))}
                     </div>
@@ -134,10 +149,10 @@ const Services = () => {
             </section>
 
             {/* CTA */}
-            <section className="bg-primary py-24">
+            <section className="bg-primary py-20 md:py-32">
                 <div className="container-custom text-center">
-                    <h2 className="text-3xl md:text-5xl font-playfair font-bold text-white mb-8">Ready to bring your vision to life?</h2>
-                    <button className="btn-primary">Get A Free Quote Today</button>
+                    <h2 className="text-3xl sm:text-4xl md:text-6xl font-playfair font-bold text-white mb-10 leading-tight">Ready to bring your <br className="hidden sm:block" /> vision to life?</h2>
+                    <button className="btn-primary mx-auto md:px-16">Get A Free Quote Today</button>
                 </div>
             </section>
         </div>
