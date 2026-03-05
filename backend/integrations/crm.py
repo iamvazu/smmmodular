@@ -1,36 +1,40 @@
-class SMMCRMIntegration:
+import os
+import requests
+
+class PerfexCRMIntegration:
     def __init__(self):
-        # In a real environment, initialize HubSpot/Zoho client here
-        self.hubspot_client = None 
+        # In a real environment, pull from os.environ
+        self.api_key = os.getenv("PERFEX_API_KEY", "")
+        self.api_url = os.getenv("PERFEX_API_URL", "https://your-perfex-crm-domain.com/api/leads")
         
     def create_lead_from_design(self, design_session: dict):
         """
-        Auto-create lead in CRM when user generates a design
+        Auto-create lead in Perfex CRM when user generates a design or views report
         """
+        # Mapping to typical Perfex CRM fields
         lead_data = {
-            "firstname": design_session.get("user_name", "Aura AI User"),
-            "phone": design_session.get("user_phone", "+91"),
-            "email": design_session.get("user_email", "ai-lead@example.com"),
+            "name": design_session.get("user_name", "Aura AI User"),
+            "phonenumber": design_session.get("user_phone", ""),
+            "email": design_session.get("user_email", ""),
             "city": design_session.get("user_city", "Bangalore"),
-            "source": "Aura AI",
-            "design_session_id": design_session.get("id"),
-            "room_type": design_session.get("room_type"),
-            "estimated_budget": design_session.get("estimated_cost"),
-            "vastu_score": design_session.get("vastu_score"),
-            "ai_generated_design_url": design_session.get("generated_render_url")
+            "source": "3", # Assuming '3' is a mapped source ID in Perfex for 'Aura AI'
+            "status": "1", # Assuming '1' is 'New' lead status ID in Perfex
+            "description": f"Aura AI Session ({design_session.get('id')}). Room: {design_session.get('room_type')}. Budget: {design_session.get('estimated_cost')}. Vastu Score: {design_session.get('vastu_score')}."
         }
         
-        if self.hubspot_client:
+        headers = {
+            "authtoken": self.api_key
+        }
+        
+        if self.api_key:
             try:
-                # Create in HubSpot API
-                self.hubspot_client.crm.contacts.basic_api.create(
-                    simple_public_object_input=lead_data
-                )
-                print(f"Created Lead in HubSpot for {lead_data['firstname']}")
+                # Create in Perfex API
+                response = requests.post(self.api_url, data=lead_data, headers=headers)
+                print(f"Created Lead in Perfex CRM for {lead_data['name']}: {response.status_code}")
             except Exception as e:
-                print(f"HubSpot API Error: {e}")
+                print(f"Perfex CRM API Error: {e}")
         else:
-            print(f"[Mock CRM] Captured lead data: {lead_data}")
+            print(f"[Mock Perfex CRM] Captured lead data: {lead_data}")
             
         # Assign to nearest SMM showroom based on city
         self.assign_to_showroom(lead_data.get("city"), design_session.get("id"))

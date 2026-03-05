@@ -1,14 +1,19 @@
 import { useEffect, useState } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { ArrowLeft, CheckCircle2, AlertTriangle, Download, Share2, Phone } from 'lucide-react';
+import { ArrowLeft, CheckCircle2, AlertTriangle, Download, Share2, Phone, X } from 'lucide-react';
 import { SEO } from '../components/SEO';
 import { trackAuraEvent } from '../lib/analytics';
+import { captureLead } from '../lib/apiClient';
 import Navbar from '../components/Navbar';
 
 export default function AuraResult() {
     const { sessionId } = useParams();
     const [loading, setLoading] = useState(true);
+    const [isModalOpen, setIsModalOpen] = useState(false);
+    const [leadData, setLeadData] = useState({ name: '', phone: '', email: '', city: '' });
+    const [submittingLead, setSubmittingLead] = useState(false);
+    const [leadSuccess, setLeadSuccess] = useState(false);
 
     // Mock detailed report state
     const [report, setReport] = useState<any>(null);
@@ -43,6 +48,33 @@ export default function AuraResult() {
         }, 1500);
 
     }, [sessionId]);
+
+    const handleLeadSubmit = async (e: React.FormEvent) => {
+        e.preventDefault();
+        setSubmittingLead(true);
+        try {
+            await captureLead({
+                session_id: sessionId || 'unknown',
+                name: leadData.name,
+                phone: leadData.phone,
+                email: leadData.email,
+                city: leadData.city,
+                room_type: 'Entire Home 2D Plan',
+                estimated_cost: report?.estimate || 0,
+                vastu_score: report?.vastu?.score || 0
+            });
+            trackAuraEvent('Lead Captured', { source: 'AuraResult Modal' });
+            setLeadSuccess(true);
+            setTimeout(() => {
+                setIsModalOpen(false);
+                setLeadSuccess(false);
+            }, 3000);
+        } catch (error) {
+            console.error(error);
+        } finally {
+            setSubmittingLead(false);
+        }
+    };
 
     if (loading) {
         return (
@@ -105,10 +137,10 @@ export default function AuraResult() {
                             <p className="text-xs uppercase font-space tracking-widest text-white/50 mb-6">Based on AI dimension mapping</p>
                             <div className="text-4xl font-bold text-secondary mb-8">₹{report.estimate.toLocaleString('en-IN')}</div>
                             <div className="space-y-3">
-                                <button onClick={() => trackAuraEvent('Report Downloaded')} className="btn-secondary w-full flex items-center justify-center gap-2 py-3 bg-white text-primary">
+                                <button onClick={() => { trackAuraEvent('Report Download Clicked'); setIsModalOpen(true); }} className="btn-secondary w-full flex items-center justify-center gap-2 py-3 bg-white text-primary">
                                     <Download size={18} /> Download Full PDF
                                 </button>
-                                <button className="w-full flex items-center justify-center gap-2 py-3 text-white border border-white/20 hover:bg-white/10 rounded-full font-space text-xs uppercase tracking-widest transition-colors">
+                                <button onClick={() => { trackAuraEvent('Call Designer Clicked'); setIsModalOpen(true); }} className="w-full flex items-center justify-center gap-2 py-3 text-white border border-white/20 hover:bg-white/10 rounded-full font-space text-xs uppercase tracking-widest transition-colors">
                                     <Phone size={18} /> Call Designer
                                 </button>
                             </div>
@@ -139,6 +171,55 @@ export default function AuraResult() {
                     </div>
                 </div>
             </div>
+
+            {/* Lead Capture Modal */}
+            {isModalOpen && (
+                <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/60 backdrop-blur-sm p-4">
+                    <motion.div initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} className="bg-white rounded-3xl max-w-md w-full overflow-hidden shadow-2xl">
+                        <div className="p-6 md:p-8">
+                            <div className="flex justify-between items-center mb-6">
+                                <h3 className="font-playfair text-2xl font-bold text-primary">Get Your Design</h3>
+                                <button onClick={() => setIsModalOpen(false)} className="text-darkGray/50 hover:text-primary transition-colors">
+                                    <X size={24} />
+                                </button>
+                            </div>
+
+                            {leadSuccess ? (
+                                <div className="text-center py-8">
+                                    <div className="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                                        <CheckCircle2 className="text-green-600" size={32} />
+                                    </div>
+                                    <h4 className="font-playfair text-xl font-bold mb-2">Success!</h4>
+                                    <p className="text-darkGray/70 font-inter text-sm">Your report has been unlocked and our expert designer will reach out shortly.</p>
+                                </div>
+                            ) : (
+                                <form onSubmit={handleLeadSubmit} className="space-y-4">
+                                    <p className="text-darkGray/70 font-inter text-sm mb-6">Enter your details to instantly unlock the full 4K PDF render package and connect with your nearest SMM team.</p>
+
+                                    <div>
+                                        <label className="text-xs uppercase font-space tracking-widest text-darkGray/70 mb-1 block">Full Name</label>
+                                        <input required type="text" className="w-full border border-black/10 rounded-xl px-4 py-3 outline-none focus:border-secondary transition-colors" value={leadData.name} onChange={e => setLeadData({ ...leadData, name: e.target.value })} placeholder="John Doe" />
+                                    </div>
+
+                                    <div>
+                                        <label className="text-xs uppercase font-space tracking-widest text-darkGray/70 mb-1 block">Phone Number</label>
+                                        <input required type="tel" className="w-full border border-black/10 rounded-xl px-4 py-3 outline-none focus:border-secondary transition-colors" value={leadData.phone} onChange={e => setLeadData({ ...leadData, phone: e.target.value })} placeholder="+91 98765 43210" />
+                                    </div>
+
+                                    <div>
+                                        <label className="text-xs uppercase font-space tracking-widest text-darkGray/70 mb-1 block">Email (Optional)</label>
+                                        <input type="email" className="w-full border border-black/10 rounded-xl px-4 py-3 outline-none focus:border-secondary transition-colors" value={leadData.email} onChange={e => setLeadData({ ...leadData, email: e.target.value })} placeholder="john@example.com" />
+                                    </div>
+
+                                    <button disabled={submittingLead} type="submit" className="w-full btn-primary py-4 mt-4 flex items-center justify-center gap-2">
+                                        {submittingLead ? <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin"></div> : "Unlock & Consult"}
+                                    </button>
+                                </form>
+                            )}
+                        </div>
+                    </motion.div>
+                </div>
+            )}
         </div>
     );
 }

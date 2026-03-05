@@ -7,6 +7,7 @@ from pydantic import BaseModel
 from services.spatial_analyzer import SpatialAnalyzer
 from services.vastu_engine import VastuEngine
 from services.render_generator import RenderGenerator
+from integrations.crm import PerfexCRMIntegration
 
 app = FastAPI(title="Aura AI API")
 
@@ -57,6 +58,35 @@ def calculate_estimate(data):
 spatial_analyzer = SpatialAnalyzer()
 vastu_engine = VastuEngine()
 render_generator = RenderGenerator()
+perfex_crm = PerfexCRMIntegration()
+
+class LeadRequest(BaseModel):
+    session_id: str
+    name: str
+    phone: str
+    city: str
+    room_type: str = "Entire Home"
+    estimated_cost: float = 0.0
+    vastu_score: int = 0
+    email: str = ""
+
+@app.post("/api/v1/lead")
+async def capture_lead(lead: LeadRequest):
+    """
+    Capture lead from Aura AI UI and send to Perfex CRM
+    """
+    design_session = {
+        "id": lead.session_id,
+        "user_name": lead.name,
+        "user_phone": lead.phone,
+        "user_city": lead.city,
+        "user_email": lead.email,
+        "room_type": lead.room_type,
+        "estimated_cost": lead.estimated_cost,
+        "vastu_score": lead.vastu_score
+    }
+    perfex_crm.create_lead_from_design(design_session)
+    return {"status": "success", "message": "Lead captured in Perfex CRM"}
 
 @app.post("/api/v1/analyze")
 async def analyze_upload(
