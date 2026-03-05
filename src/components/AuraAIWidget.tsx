@@ -32,10 +32,10 @@ export function AuraAIWidget({ variant = 'hero' }: AuraAIWidgetProps) {
     const [isRefining, setIsRefining] = useState(false);
 
     const samplePhotos = [
-        { id: 1, type: 'living_room', url: 'https://images.unsplash.com/photo-1583847268964-b28dc2f51ac9?auto=format&fit=crop&q=80&w=300', label: 'Empty Living' },
-        { id: 2, type: 'bedroom', url: 'https://images.unsplash.com/photo-1595526051245-4506e0005bd0?auto=format&fit=crop&q=80&w=300', label: 'Bare Bedroom' },
-        { id: 3, type: 'kitchen', url: 'https://images.unsplash.com/photo-1556912177-c54030639a03?auto=format&fit=crop&q=80&w=300', label: 'Old Kitchen' },
-        { id: 4, type: 'entire_home', url: 'https://images.unsplash.com/photo-1574362848149-11496d93a7c7?auto=format&fit=crop&q=80&w=300', label: '2D Floorplan' },
+        { id: 1, type: 'entire_home', url: '/images/samples/detailed_plan.png', label: 'Detailed Floor Plan' },
+        { id: 2, type: 'living_room', url: '/images/samples/raw_room.jpg', label: 'Construction Room' },
+        { id: 3, type: 'entire_home', url: '/images/samples/colored_plan.jpg', label: 'Colored Layout' },
+        { id: 4, type: 'entire_home', url: '/images/samples/arch_plan.jpg', label: 'Architectural Plan' },
     ];
 
     // Booking State
