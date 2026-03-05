@@ -5,12 +5,12 @@ const Footer = () => {
     return (
         <footer className="bg-primary text-white pt-20 pb-10 border-t border-secondary/10">
             <div className="container-custom">
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-12 mb-16">
-                    <div className="space-y-6">
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-6 gap-8 lg:gap-12 mb-16">
+                    <div className="space-y-6 lg:col-span-2">
                         <Link to="/" className="inline-block">
                             <img src="images/SMM-Logo.png" alt="SMM Modular Furniture" className="h-16 w-auto object-contain" />
                         </Link>
-                        <p className="text-white/60 font-inter text-sm leading-relaxed max-w-xs">
+                        <p className="text-white/60 font-inter text-sm leading-relaxed max-w-sm">
                             SMM Modular Furniture has been redefining interior design in Bangalore since 2004. We combine traditional craftsmanship with modern technology.
                         </p>
                         <div className="flex space-x-4">
@@ -27,10 +27,10 @@ const Footer = () => {
                     </div>
 
                     {/* Quick Links */}
-                    <div className="space-y-6">
+                    <div className="space-y-6 lg:col-span-1">
                         <h4 className="font-space text-xs font-bold uppercase tracking-widest text-secondary">Navigation</h4>
                         <ul className="space-y-4">
-                            {['Home', 'Services', 'Our Factory'].map((item) => (
+                            {['Home', 'Services', 'Our Factory', 'Portfolio', 'Contact'].map((item) => (
                                 <li key={item}>
                                     <Link to={item === 'Home' ? '/' : `/${item.toLowerCase().replace(' ', '-')}`} className="text-white/70 hover:text-white hover:pl-2 transition-all duration-300 text-sm font-inter">
                                         {item}
@@ -41,12 +41,26 @@ const Footer = () => {
                     </div>
 
                     {/* Services */}
-                    <div className="space-y-6">
+                    <div className="space-y-6 lg:col-span-1">
+                        <h4 className="font-space text-xs font-bold uppercase tracking-widest text-secondary">Our Expertise</h4>
+                        <ul className="space-y-4">
+                            {['Residential', 'Commercial', 'Corporate', 'Modular Kitchens', 'Bespoke Wardrobes'].map((item) => (
+                                <li key={item}>
+                                    <span className="text-white/70 hover:text-white transition-all duration-300 text-sm font-inter cursor-pointer">
+                                        {item}
+                                    </span>
+                                </li>
+                            ))}
+                        </ul>
+                    </div>
+
+                    {/* Locations */}
+                    <div className="space-y-6 lg:col-span-1">
                         <h4 className="font-space text-xs font-bold uppercase tracking-widest text-secondary">Locations</h4>
                         <ul className="space-y-4">
-                            {['Mysore', 'Coimbatore', 'Hyderabad', 'Chennai', 'Kochi'].map((item) => (
+                            {['Bangalore', 'Mysore', 'Coimbatore', 'Hyderabad', 'Chennai', 'Kochi', 'Mangalore'].map((item) => (
                                 <li key={item}>
-                                    <Link to={`/location/${item.toLowerCase()}`} className="text-white/70 hover:text-white hover:pl-2 transition-all duration-300 text-sm font-inter">
+                                    <Link to={item === 'Bangalore' ? '/' : `/location/${item.toLowerCase()}`} className="text-white/70 hover:text-white hover:pl-2 transition-all duration-300 text-sm font-inter">
                                         {item}
                                     </Link>
                                 </li>
@@ -55,20 +69,20 @@ const Footer = () => {
                     </div>
 
                     {/* Contact */}
-                    <div className="space-y-6">
+                    <div className="space-y-6 lg:col-span-1">
                         <h4 className="font-space text-xs font-bold uppercase tracking-widest text-secondary">Get in Touch</h4>
                         <ul className="space-y-4">
                             <li className="flex items-start space-x-3 text-sm text-white/70">
-                                <MapPin size={18} className="text-secondary shrink-0" />
-                                <span>No.692/5/5/1, Agrahara Main Road, Sampigehalli, Bangalore, Karnataka 560064</span>
+                                <MapPin size={18} className="text-secondary shrink-0 mt-0.5" />
+                                <span>No.692/5/5/1, Agrahara,<br />Sampigehalli, Bangalore<br />Karnataka 560064</span>
                             </li>
-                            <li className="flex items-center space-x-3 text-sm text-white/70">
+                            <li className="flex items-center space-x-3 text-sm text-white/70 mt-4">
                                 <Phone size={18} className="text-secondary shrink-0" />
                                 <span>+91 76249 97792</span>
                             </li>
-                            <li className="flex items-center space-x-3 text-sm text-white/70">
+                            <li className="flex items-center space-x-3 text-sm text-white/70 mt-4">
                                 <Mail size={18} className="text-secondary shrink-0" />
-                                <span>smmmodularfurniture@gmail.com</span>
+                                <span className="truncate" title="smmmodularfurniture@gmail.com">smmmodular...</span>
                             </li>
                         </ul>
                     </div>
