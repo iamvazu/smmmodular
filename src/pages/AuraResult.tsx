@@ -11,7 +11,7 @@ export default function AuraResult() {
     const { sessionId } = useParams();
     const [loading, setLoading] = useState(true);
     const [isModalOpen, setIsModalOpen] = useState(false);
-    const [leadData, setLeadData] = useState({ name: '', phone: '', email: '', city: '' });
+    const [leadData, setLeadData] = useState({ name: '', phone: '', email: '', city: '', date: '', time: '' });
     const [submittingLead, setSubmittingLead] = useState(false);
     const [leadSuccess, setLeadSuccess] = useState(false);
 
@@ -61,7 +61,11 @@ export default function AuraResult() {
                 city: leadData.city,
                 room_type: 'Entire Home 2D Plan',
                 estimated_cost: report?.estimate || 0,
-                vastu_score: report?.vastu?.score || 0
+                vastu_score: report?.vastu?.score || 0,
+                preferred_date: leadData.date,
+                preferred_time: leadData.time,
+                user_sketch: report?.original_plan,
+                generated_render: report?.rooms?.[0]?.render_url
             });
             trackAuraEvent('Lead Captured', { source: 'AuraResult Modal' });
             setLeadSuccess(true);
@@ -209,6 +213,17 @@ export default function AuraResult() {
                                     <div>
                                         <label className="text-xs uppercase font-space tracking-widest text-darkGray/70 mb-1 block">Email (Optional)</label>
                                         <input type="email" className="w-full border border-black/10 rounded-xl px-4 py-3 outline-none focus:border-secondary transition-colors" value={leadData.email} onChange={e => setLeadData({ ...leadData, email: e.target.value })} placeholder="john@example.com" />
+                                    </div>
+
+                                    <div className="grid grid-cols-2 gap-4">
+                                        <div>
+                                            <label className="text-xs uppercase font-space tracking-widest text-darkGray/70 mb-1 block">Preferred Date</label>
+                                            <input required type="date" className="w-full border border-black/10 rounded-xl px-4 py-3 outline-none focus:border-secondary transition-colors" value={leadData.date} onChange={e => setLeadData({ ...leadData, date: e.target.value })} />
+                                        </div>
+                                        <div>
+                                            <label className="text-xs uppercase font-space tracking-widest text-darkGray/70 mb-1 block">Preferred Time</label>
+                                            <input required type="time" className="w-full border border-black/10 rounded-xl px-4 py-3 outline-none focus:border-secondary transition-colors" value={leadData.time} onChange={e => setLeadData({ ...leadData, time: e.target.value })} />
+                                        </div>
                                     </div>
 
                                     <button disabled={submittingLead} type="submit" className="w-full btn-primary py-4 mt-4 flex items-center justify-center gap-2">

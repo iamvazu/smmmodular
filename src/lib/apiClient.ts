@@ -96,7 +96,20 @@ export const pollRenderStatus = async (sessionId: string, style: string = 'moder
     }
 };
 
-export const captureLead = async (leadData: { session_id: string, name: string, phone: string, city: string, room_type?: string, email?: string, estimated_cost?: number, vastu_score?: number }) => {
+export const captureLead = async (leadData: {
+    session_id: string,
+    name: string,
+    phone: string,
+    city: string,
+    room_type?: string,
+    email?: string,
+    estimated_cost?: number,
+    vastu_score?: number,
+    user_sketch?: string,
+    generated_render?: string,
+    preferred_date?: string,
+    preferred_time?: string
+}) => {
     try {
         const response = await fetch(`${API_BASE_URL}/lead`, {
             method: 'POST',

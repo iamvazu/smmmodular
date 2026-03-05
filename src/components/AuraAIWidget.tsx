@@ -1,9 +1,10 @@
 import { useState, useCallback } from 'react';
 import { useDropzone } from 'react-dropzone';
-import { Upload, Wand2, Compass, Download, Loader2, ArrowRight, CheckCircle2, AlertTriangle, ChevronLeft, ChevronRight, Eye } from 'lucide-react';
+import { Upload, Wand2, Compass, Download, Loader2, ArrowRight, CheckCircle2, AlertTriangle, ChevronLeft, ChevronRight, Eye, Calendar, Clock, X } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { trackAuraEvent } from '../lib/analytics';
 import { analyzeSketch, generateRenders } from '../lib/geminiService';
+import { captureLead } from '../lib/apiClient';
 import type { AnalysisResult, RenderVariation } from '../types/aura';
 
 interface AuraAIWidgetProps {
@@ -24,6 +25,18 @@ export function AuraAIWidget({ variant = 'hero' }: AuraAIWidgetProps) {
     const [activeRenderIndex, setActiveRenderIndex] = useState(0);
     const [lightboxImage, setLightboxImage] = useState<string | null>(null);
     const [showVastuDetails, setShowVastuDetails] = useState(false);
+
+    // Booking State
+    const [isBookingModalOpen, setIsBookingModalOpen] = useState(false);
+    const [bookingData, setBookingData] = useState({
+        name: '',
+        phone: '',
+        email: '',
+        date: '',
+        time: ''
+    });
+    const [isSubmitting, setIsSubmitting] = useState(false);
+    const [isSuccess, setIsSuccess] = useState(false);
 
     const startAIProcess = async (file: File, base64Data: string, selectedRoomType: string) => {
         try {
@@ -111,7 +124,150 @@ export function AuraAIWidget({ variant = 'hero' }: AuraAIWidgetProps) {
         setActiveRenderIndex(0);
         setStep('upload');
         setError(null);
+        setIsSuccess(false);
     };
+
+    const handleBookingSubmit = async (e: React.FormEvent) => {
+        e.preventDefault();
+        if (!analysis) return;
+
+        setIsSubmitting(true);
+        try {
+            await captureLead({
+                session_id: `aura-${Date.now()}`,
+                name: bookingData.name,
+                phone: bookingData.phone,
+                email: bookingData.email,
+                city: 'Online (Aura AI)',
+                room_type: analysis.roomType,
+                vastu_score: analysis.vastu_score,
+                user_sketch: uploadedBase64,
+                generated_render: renders[activeRenderIndex]?.url,
+                preferred_date: bookingData.date,
+                preferred_time: bookingData.time
+            });
+
+            trackAuraEvent('Consultation Booked', {
+                name: bookingData.name,
+                room_type: analysis.roomType
+            });
+
+            setIsSuccess(true);
+            setTimeout(() => {
+                setIsBookingModalOpen(false);
+                setIsSuccess(false);
+            }, 3000);
+        } catch (err) {
+            console.error("Booking error:", err);
+            alert("Failed to schedule consultation. Please try again.");
+        } finally {
+            setIsSubmitting(false);
+        }
+    };
+
+    const BookingModal = () => (
+        <AnimatePresence>
+            {isBookingModalOpen && (
+                <motion.div
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: 1 }}
+                    exit={{ opacity: 0 }}
+                    className="fixed inset-0 z-[110] bg-black/80 backdrop-blur-md flex items-center justify-center p-4"
+                >
+                    <motion.div
+                        initial={{ scale: 0.9, opacity: 0, y: 20 }}
+                        animate={{ scale: 1, opacity: 1, y: 0 }}
+                        exit={{ scale: 0.9, opacity: 0, y: 20 }}
+                        className="bg-zinc-900 border border-secondary/30 rounded-[2.5rem] p-8 md:p-12 max-w-xl w-full shadow-[0_0_100px_-20px_rgba(212,175,55,0.2)]"
+                    >
+                        <div className="flex justify-between items-start mb-8">
+                            <div>
+                                <h3 className="text-3xl font-playfair font-bold text-white">Book Design Consult</h3>
+                                <p className="text-secondary text-xs font-space uppercase tracking-[0.2em] mt-2">Send your AI Design to our Experts</p>
+                            </div>
+                            <button onClick={() => setIsBookingModalOpen(false)} className="text-white/40 hover:text-white">
+                                <X size={24} />
+                            </button>
+                        </div>
+
+                        {isSuccess ? (
+                            <div className="text-center py-12 space-y-6">
+                                <div className="w-20 h-20 bg-secondary/20 rounded-full flex items-center justify-center mx-auto">
+                                    <CheckCircle2 className="text-secondary" size={40} />
+                                </div>
+                                <div>
+                                    <h4 className="text-2xl font-playfair font-bold text-white mb-2">Booking Confirmed!</h4>
+                                    <p className="text-white/60 font-inter">An SMM Modular designer will call you shortly to discuss your design.</p>
+                                </div>
+                            </div>
+                        ) : (
+                            <form onSubmit={handleBookingSubmit} className="space-y-5">
+                                <div className="grid grid-cols-2 gap-4">
+                                    <div className="space-y-1.5">
+                                        <label className="text-[10px] text-white/50 font-space uppercase tracking-widest ml-1">Full Name</label>
+                                        <input required type="text" value={bookingData.name} onChange={e => setBookingData({ ...bookingData, name: e.target.value })}
+                                            className="w-full bg-white/5 border border-white/10 rounded-2xl p-4 text-white outline-none focus:border-secondary transition-colors" placeholder="John Doe" />
+                                    </div>
+                                    <div className="space-y-1.5">
+                                        <label className="text-[10px] text-white/50 font-space uppercase tracking-widest ml-1">Phone Number</label>
+                                        <input required type="tel" value={bookingData.phone} onChange={e => setBookingData({ ...bookingData, phone: e.target.value })}
+                                            className="w-full bg-white/5 border border-white/10 rounded-2xl p-4 text-white outline-none focus:border-secondary transition-colors" placeholder="+91 98765 43210" />
+                                    </div>
+                                </div>
+
+                                <div className="space-y-1.5">
+                                    <label className="text-[10px] text-white/50 font-space uppercase tracking-widest ml-1">Email Address</label>
+                                    <input required type="email" value={bookingData.email} onChange={e => setBookingData({ ...bookingData, email: e.target.value })}
+                                        className="w-full bg-white/5 border border-white/10 rounded-2xl p-4 text-white outline-none focus:border-secondary transition-colors" placeholder="john@example.com" />
+                                </div>
+
+                                <div className="grid grid-cols-2 gap-4">
+                                    <div className="space-y-1.5 relative">
+                                        <label className="text-[10px] text-white/50 font-space uppercase tracking-widest ml-1">Preferred Date</label>
+                                        <div className="relative">
+                                            <Calendar className="absolute left-4 top-1/2 -translate-y-1/2 text-secondary/50" size={18} />
+                                            <input required type="date" value={bookingData.date} onChange={e => setBookingData({ ...bookingData, date: e.target.value })}
+                                                className="w-full bg-white/5 border border-white/10 rounded-2xl p-4 pl-12 text-white outline-none focus:border-secondary transition-colors" />
+                                        </div>
+                                    </div>
+                                    <div className="space-y-1.5 relative">
+                                        <label className="text-[10px] text-white/50 font-space uppercase tracking-widest ml-1">Preferred Time</label>
+                                        <div className="relative">
+                                            <Clock className="absolute left-4 top-1/2 -translate-y-1/2 text-secondary/50" size={18} />
+                                            <input required type="time" value={bookingData.time} onChange={e => setBookingData({ ...bookingData, time: e.target.value })}
+                                                className="w-full bg-white/5 border border-white/10 rounded-2xl p-4 pl-12 text-white outline-none focus:border-secondary transition-colors" />
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div className="bg-white/5 p-4 rounded-2xl border border-white/5 flex items-center gap-4 mt-2">
+                                    <div className="w-12 h-12 rounded-xl overflow-hidden border border-white/10 shrink-0">
+                                        <img src={renders[activeRenderIndex]?.url} className="w-full h-full object-cover" alt="Packaged Render" />
+                                    </div>
+                                    <div className="flex-1">
+                                        <p className="text-[10px] text-white/40 font-space uppercase tracking-widest">Image Package</p>
+                                        <p className="text-white font-bold text-xs">Included with your consultation</p>
+                                    </div>
+                                    <CheckCircle2 className="text-secondary" size={20} />
+                                </div>
+
+                                <button type="submit" disabled={isSubmitting}
+                                    className="w-full btn-primary py-5 mt-4 group">
+                                    {isSubmitting ? (
+                                        <Loader2 className="animate-spin" size={20} />
+                                    ) : (
+                                        <span className="flex items-center justify-center gap-2">
+                                            Package & Schedule <ArrowRight className="group-hover:translate-x-1 transition-transform" size={18} />
+                                        </span>
+                                    )}
+                                </button>
+                            </form>
+                        )}
+                    </motion.div>
+                </motion.div>
+            )}
+        </AnimatePresence>
+    );
 
     const nextRender = () => setActiveRenderIndex(prev => (prev + 1) % renders.length);
     const prevRender = () => setActiveRenderIndex(prev => (prev - 1 + renders.length) % renders.length);
@@ -239,6 +395,7 @@ export function AuraAIWidget({ variant = 'hero' }: AuraAIWidgetProps) {
             } ${variant === 'floating' ? 'shadow-2xl' : ''}`}>
             <Lightbox />
             <VastuModal />
+            <BookingModal />
             <div className="flex items-center justify-between mb-6">
                 <h3 className="text-xl md:text-2xl font-playfair font-bold text-white flex items-center gap-2">
                     <Wand2 className="text-secondary" /> Aura AI <span className="text-secondary">✨</span>
@@ -276,7 +433,7 @@ export function AuraAIWidget({ variant = 'hero' }: AuraAIWidgetProps) {
                                 <p className="text-white/50 text-sm mt-1">or click to browse (JPG, PNG, WebP)</p>
                             </div>
                         </div>
-                        <p className="text-center text-[10px] text-white/40 uppercase font-space tracking-widest">Powered by Gemini AI</p>
+                        <p className="text-center text-[10px] text-white/40 uppercase font-space tracking-widest">SMM Modular Furniture Design Engine</p>
 
                         {error && (
                             <div className="bg-red-500/20 text-red-200 p-3 rounded-lg text-xs font-inter text-center mt-4 border border-red-500/30">
@@ -356,8 +513,8 @@ export function AuraAIWidget({ variant = 'hero' }: AuraAIWidgetProps) {
                                         <span className="text-xl pb-1.5 opacity-60">/100</span>
                                     </div>
                                     <span className={`text-[10px] font-space uppercase tracking-[0.2em] px-4 py-1.5 rounded-full border ${analysis.status === 'Auspicious' ? 'border-green-500/50 text-green-400 bg-green-500/10' :
-                                            analysis.status === 'Neutral' ? 'border-yellow-500/50 text-yellow-400 bg-yellow-500/10' :
-                                                'border-red-500/50 text-red-400 bg-red-500/10'
+                                        analysis.status === 'Neutral' ? 'border-yellow-500/50 text-yellow-400 bg-yellow-500/10' :
+                                            'border-red-500/50 text-red-400 bg-red-500/10'
                                         }`}>{analysis.status}</span>
                                 </div>
                             </div>
@@ -463,7 +620,7 @@ export function AuraAIWidget({ variant = 'hero' }: AuraAIWidgetProps) {
                                 <div>
                                     <p className="text-white text-sm font-bold tracking-tight">Vastu Compliance Score</p>
                                     <p className={`text-[10px] font-space uppercase tracking-widest ${analysis.status === 'Auspicious' ? 'text-green-400' :
-                                            analysis.status === 'Neutral' ? 'text-yellow-400' : 'text-red-400'
+                                        analysis.status === 'Neutral' ? 'text-yellow-400' : 'text-red-400'
                                         }`}>{analysis.status}</p>
                                 </div>
                             </div>
@@ -481,7 +638,7 @@ export function AuraAIWidget({ variant = 'hero' }: AuraAIWidgetProps) {
                             }} className="btn-outline w-full text-xs py-3 flex items-center justify-center gap-2">
                                 Share on WhatsApp
                             </button>
-                            <button onClick={() => { trackAuraEvent('Consultation Booked', { from_ai: true }); window.location.href = '/services'; }}
+                            <button onClick={() => setIsBookingModalOpen(true)}
                                 className="btn-primary w-full text-xs py-3 flex items-center justify-center gap-2">
                                 Book Consult <ArrowRight size={14} />
                             </button>

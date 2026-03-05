@@ -28,7 +28,7 @@ const AuraAI = () => {
                                 transition={{ duration: 0.8 }}
                             >
                                 <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-secondary/10 border border-secondary/20 text-secondary text-[10px] md:text-sm font-space uppercase tracking-widest font-bold mb-6">
-                                    <Sparkles size={16} /> Powered by Gemini 1.5 Pro
+                                    <Sparkles size={16} /> Aura AI Design Engine
                                 </div>
                                 <h1 className="text-4xl md:text-6xl lg:text-7xl font-playfair font-bold leading-tight mb-6">
                                     See Your Dream <br className="hidden md:block" />
@@ -80,7 +80,7 @@ const AuraAI = () => {
 
                         {[
                             { step: "01", title: "Upload", desc: "Snap a photo of your empty room or draw a quick sketch of your floor plan." },
-                            { step: "02", title: "AI Magic", desc: "Gemini 1.5 Pro analyzes dimensions, natural light, and checks Vastu compliance." },
+                            { step: "02", title: "AI Magic", desc: "Aura AI analyzes dimensions, natural light, and checks Vastu compliance." },
                             { step: "03", title: "Your Design", desc: "Get highly detailed 3D renders with SMM's actual furniture catalog applied to your space." }
                         ].map((item, i) => (
                             <motion.div
