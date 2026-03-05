@@ -1,7 +1,7 @@
 import { GoogleGenAI, Type } from "@google/genai";
 import type { AnalysisResult, RenderVariation } from "../types/aura";
 
-const API_KEY = import.meta.env.VITE_GEMINI_API_KEY || "AIzaSyBAL-yJ0kP0ttS-KfxG4HiBf4P9-3JAXto";
+const API_KEY = import.meta.env.VITE_GEMINI_API_KEY;
 
 const MAX_RETRIES = 5;
 const INITIAL_BACKOFF = 15000;

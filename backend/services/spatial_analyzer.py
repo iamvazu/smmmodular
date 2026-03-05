@@ -6,7 +6,7 @@ class SpatialAnalyzer:
     def __init__(self):
         try:
             # Use the provided API key or fallback to environment variable
-            api_key = os.getenv("GEMINI_API_KEY", "AIzaSyDBRBY7faHAp1Dbs11iy4aHsyefzNdQHxc")
+            api_key = os.getenv("GEMINI_API_KEY")
             genai.configure(api_key=api_key)
             self.model = genai.GenerativeModel("gemini-1.5-pro-002")
         except Exception as e:

@@ -6,7 +6,7 @@ class RenderGenerator:
     def __init__(self):
         self.ready = False
         try:
-            api_key = os.getenv("GEMINI_API_KEY", "AIzaSyDBRBY7faHAp1Dbs11iy4aHsyefzNdQHxc")
+            api_key = os.getenv("GEMINI_API_KEY")
             genai.configure(api_key=api_key)
             # Use Gemini for text-based design descriptions
             # (Gemini does not generate images directly, so we use it to 
