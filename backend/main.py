@@ -187,24 +187,42 @@ async def generate_render_endpoint(
     # Retrieve spatial data from session store
     session = session_store.get(session_id, {"room_type": "living_room", "detected_furniture": []})
     room_type = session.get("room_type", "living_room")
-    
-    # Generate render with Gemini-powered advisor
-    render_result = await render_generator.generate(
-        control_image=None,
-        style=style,
-        time_of_day=time_of_day,
-        room_type=room_type,
-        furniture_items=get_smm_catalog()
-    )
-    
     spatial_data = session.get("spatial_data", {})
     
+    # Map room types to curated render images (fallback)
+    render_map = {
+        "living_room": "/images/services/residential-projects/img(18).webp",
+        "bedroom": "/images/services/residential-projects/img(22).webp",
+        "master_bedroom": "/images/services/residential-projects/img(22).webp",
+        "kitchen": "/images/services/residential-projects/img(26).webp",
+        "office": "/images/services/commercial-projects/img(1).webp",
+        "entire_home": "/images/services/residential-projects/img(18).webp",
+    }
+    fallback_url = render_map.get(room_type, render_map["living_room"])
+    
+    render_url = fallback_url
+    design_desc = f"A beautifully designed {room_type} with premium SMM modular furniture."
+    
+    if render_generator:
+        try:
+            render_result = await render_generator.generate(
+                control_image=None,
+                style=style,
+                time_of_day=time_of_day,
+                room_type=room_type,
+                furniture_items=get_smm_catalog()
+            )
+            render_url = render_result.get("render_url", fallback_url)
+            design_desc = render_result.get("design_description", design_desc)
+        except Exception as e:
+            print(f"Render generation error: {e}")
+    
     return {
-        "render_url": render_result.get("render_url", "/images/services/residential-projects/img(18).webp"),
+        "render_url": render_url,
         "thumbnail_url": "",
         "furniture_items": get_smm_catalog(),
         "estimated_cost": calculate_estimate(spatial_data),
-        "design_description": render_result.get("design_description", "")
+        "design_description": design_desc
     }
 
 @app.get("/api/v1/session/{session_id}")
@@ -219,7 +237,7 @@ async def get_session(session_id: str):
 
 @app.get("/health")
 def health_check():
-    return {"status": "healthy", "engines": {"gemini": render_generator.ready}}
+    return {"status": "healthy", "engines": {"gemini": render_generator.ready if render_generator else False}}
 
 # Serve React frontend build from ../dist
 DIST_DIR = Path(__file__).resolve().parent.parent / "dist"
