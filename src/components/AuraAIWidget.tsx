@@ -22,6 +22,8 @@ export function AuraAIWidget({ variant = 'hero' }: AuraAIWidgetProps) {
     const [analysis, setAnalysis] = useState<AnalysisResult | null>(null);
     const [renders, setRenders] = useState<RenderVariation[]>([]);
     const [activeRenderIndex, setActiveRenderIndex] = useState(0);
+    const [lightboxImage, setLightboxImage] = useState<string | null>(null);
+    const [showVastuDetails, setShowVastuDetails] = useState(false);
 
     const startAIProcess = async (file: File, base64Data: string, selectedRoomType: string) => {
         try {
@@ -114,8 +116,129 @@ export function AuraAIWidget({ variant = 'hero' }: AuraAIWidgetProps) {
     const nextRender = () => setActiveRenderIndex(prev => (prev + 1) % renders.length);
     const prevRender = () => setActiveRenderIndex(prev => (prev - 1 + renders.length) % renders.length);
 
+    const Lightbox = () => (
+        <AnimatePresence>
+            {lightboxImage && (
+                <motion.div
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: 1 }}
+                    exit={{ opacity: 0 }}
+                    onClick={() => setLightboxImage(null)}
+                    className="fixed inset-0 z-[100] bg-black/95 flex items-center justify-center p-4 md:p-12 cursor-zoom-out"
+                >
+                    <motion.div
+                        initial={{ scale: 0.9, opacity: 0 }}
+                        animate={{ scale: 1, opacity: 1 }}
+                        exit={{ scale: 0.9, opacity: 0 }}
+                        className="relative max-w-7xl max-h-[90vh] w-full"
+                    >
+                        <img src={lightboxImage} alt="Fullscreen Preview" className="w-full h-full object-contain" />
+                        <button
+                            className="absolute -top-12 right-0 text-white/70 hover:text-white flex items-center gap-2 font-space uppercase tracking-widest text-xs"
+                            onClick={() => setLightboxImage(null)}
+                        >
+                            Close Preview <CheckCircle2 size={16} />
+                        </button>
+                    </motion.div>
+                </motion.div>
+            )}
+        </AnimatePresence>
+    );
+
+    const VastuModal = () => (
+        <AnimatePresence>
+            {showVastuDetails && analysis && (
+                <motion.div
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: 1 }}
+                    exit={{ opacity: 0 }}
+                    className="fixed inset-0 z-[100] bg-primary/95 backdrop-blur-xl flex items-center justify-center p-4"
+                >
+                    <motion.div
+                        initial={{ y: 20, opacity: 0 }}
+                        animate={{ y: 0, opacity: 1 }}
+                        exit={{ y: 20, opacity: 0 }}
+                        className="bg-zinc-900 border border-secondary/30 rounded-3xl p-6 md:p-10 max-w-4xl w-full max-h-[90vh] overflow-hidden flex flex-col"
+                    >
+                        <div className="flex items-center justify-between mb-8">
+                            <div>
+                                <h4 className="text-2xl md:text-3xl font-playfair font-bold text-white">Vastu Audit & Remedial Path</h4>
+                                <p className="text-secondary text-sm font-space uppercase tracking-widest mt-1">SMM Modular Expert Analysis</p>
+                            </div>
+                            <button onClick={() => setShowVastuDetails(false)} className="bg-white/10 hover:bg-white/20 p-2 rounded-full text-white transition-colors">
+                                <ChevronLeft size={24} />
+                            </button>
+                        </div>
+
+                        <div className="flex-1 overflow-y-auto pr-2 space-y-10 custom-scrollbar">
+                            {/* Detailed Violations */}
+                            <section>
+                                <h5 className="text-white font-bold mb-4 flex items-center gap-2 border-l-2 border-red-500 pl-3">
+                                    Identified Discrepancies
+                                </h5>
+                                <div className="grid gap-4">
+                                    {analysis.violations.map((v, i) => (
+                                        <div key={i} className="bg-white/5 border border-white/10 rounded-xl p-4">
+                                            <div className="flex justify-between items-start mb-2">
+                                                <span className="text-red-400 font-bold text-sm uppercase tracking-wider">{v.item}</span>
+                                                <span className="bg-red-500/10 text-red-400 text-[10px] px-2 py-0.5 rounded font-space uppercase">Correction Required</span>
+                                            </div>
+                                            <p className="text-white text-sm mb-2">{v.issue}</p>
+                                            <div className="flex items-center gap-2 text-[11px] text-white/50 italic">
+                                                <AlertTriangle size={12} className="text-red-400/50" />
+                                                Impact: {v.impact}
+                                            </div>
+                                        </div>
+                                    ))}
+                                </div>
+                            </section>
+
+                            {/* Detailed Remedies */}
+                            <section>
+                                <h5 className="text-white font-bold mb-4 flex items-center gap-2 border-l-2 border-green-500 pl-3">
+                                    SMM Remedial Solutions
+                                </h5>
+                                <div className="grid gap-4">
+                                    {analysis.remedies.map((r, i) => (
+                                        <div key={i} className="bg-secondary/5 border border-secondary/20 rounded-xl p-4">
+                                            <div className="flex justify-between items-start mb-2">
+                                                <span className="text-secondary font-bold text-sm uppercase tracking-wider">Solution {i + 1}</span>
+                                                <span className="bg-secondary/10 text-secondary text-[10px] px-2 py-0.5 rounded font-space uppercase tracking-widest">Recommended</span>
+                                            </div>
+                                            <p className="text-white text-sm mb-1">{r.action}</p>
+                                            <p className="text-white/60 text-xs mb-3 font-inter">{r.reason}</p>
+                                            {r.smm_product_boost && (
+                                                <div className="flex items-center justify-between bg-black/30 p-3 rounded-lg border border-secondary/10">
+                                                    <div className="flex items-center gap-3">
+                                                        <CheckCircle2 size={16} className="text-secondary" />
+                                                        <span className="text-white text-xs font-bold">{r.smm_product_boost}</span>
+                                                    </div>
+                                                    <button className="text-[10px] text-secondary font-bold uppercase tracking-widest hover:underline">View Product</button>
+                                                </div>
+                                            )}
+                                        </div>
+                                    ))}
+                                </div>
+                            </section>
+                        </div>
+
+                        <button
+                            onClick={() => setShowVastuDetails(false)}
+                            className="mt-8 w-full btn-primary py-4 uppercase tracking-[0.2em] font-bold text-xs"
+                        >
+                            Return to Design Render
+                        </button>
+                    </motion.div>
+                </motion.div>
+            )}
+        </AnimatePresence>
+    );
+
     return (
-        <div className={`aura-widget bg-white/10 backdrop-blur-md rounded-2xl p-6 md:p-8 border border-secondary/30 w-full ${variant === 'floating' ? 'shadow-2xl' : ''}`}>
+        <div className={`aura-widget bg-zinc-950/80 backdrop-blur-2xl rounded-[2rem] p-6 md:p-10 border border-white/10 w-full transition-all duration-700 ${step !== 'upload' ? 'max-w-4xl mx-auto shadow-[0_32px_64px_-16px_rgba(0,0,0,0.8)]' : ''
+            } ${variant === 'floating' ? 'shadow-2xl' : ''}`}>
+            <Lightbox />
+            <VastuModal />
             <div className="flex items-center justify-between mb-6">
                 <h3 className="text-xl md:text-2xl font-playfair font-bold text-white flex items-center gap-2">
                     <Wand2 className="text-secondary" /> Aura AI <span className="text-secondary">✨</span>
@@ -169,21 +292,28 @@ export function AuraAIWidget({ variant = 'hero' }: AuraAIWidgetProps) {
                         className="py-8 space-y-6">
                         {/* Show uploaded image */}
                         {uploadedImage && (
-                            <div className="relative aspect-video rounded-xl overflow-hidden border border-secondary/30">
+                            <div className="relative aspect-video rounded-2xl overflow-hidden border border-white/10 group cursor-zoom-in" onClick={() => setLightboxImage(uploadedImage)}>
                                 <img src={uploadedImage} alt="Your upload" className="w-full h-full object-contain bg-black/50" />
-                                <div className="absolute top-3 left-3 bg-secondary/90 text-primary text-xs font-space uppercase tracking-widest px-3 py-1 rounded-full font-bold">
-                                    Your Upload
+                                <div className="absolute top-4 left-4 bg-secondary/90 text-primary text-[10px] font-space uppercase tracking-[0.2em] px-4 py-1.5 rounded-full font-bold">
+                                    Your Input
+                                </div>
+                                <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
+                                    <Eye className="text-white" size={32} />
                                 </div>
                             </div>
                         )}
-                        <div className="flex flex-col items-center text-center space-y-4">
+                        <div className="flex flex-col items-center text-center space-y-6">
                             <div className="relative">
-                                <div className="w-16 h-16 rounded-full border-t-2 border-secondary animate-spin"></div>
-                                <Wand2 className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 text-secondary" size={20} />
+                                <motion.div
+                                    className="w-20 h-20 rounded-full border-t-2 border-secondary"
+                                    animate={{ rotate: 360 }}
+                                    transition={{ duration: 1, repeat: Infinity, ease: "linear" }}
+                                />
+                                <Wand2 className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 text-secondary" size={24} />
                             </div>
                             <div>
-                                <h4 className="text-lg text-white font-playfair font-bold">Analyzing Space...</h4>
-                                <p className="text-white/60 font-inter mt-1 text-sm">{statusMessage}</p>
+                                <h4 className="text-2xl text-white font-playfair font-bold tracking-tight">Synthesizing Topology</h4>
+                                <p className="text-white/40 font-space uppercase tracking-widest mt-2 text-xs">{statusMessage}</p>
                             </div>
                         </div>
                     </motion.div>
@@ -195,80 +325,74 @@ export function AuraAIWidget({ variant = 'hero' }: AuraAIWidgetProps) {
                         className="py-4 space-y-5">
                         {/* Uploaded Image Small */}
                         {uploadedImage && (
-                            <div className="relative aspect-[16/9] rounded-xl overflow-hidden border border-secondary/30">
+                            <div className="relative aspect-[21/9] rounded-2xl overflow-hidden border border-white/10 group cursor-zoom-in" onClick={() => setLightboxImage(uploadedImage)}>
                                 <img src={uploadedImage} alt="Your upload" className="w-full h-full object-contain bg-black/50" />
                                 <BoundingBoxes objects={analysis.objects} visible={true} />
-                                <div className="absolute top-2 left-2 bg-secondary/90 text-primary text-[10px] font-space uppercase tracking-widest px-2 py-1 rounded-full font-bold">
+                                <div className="absolute top-3 left-3 bg-secondary/90 text-primary text-[10px] font-space uppercase tracking-widest px-3 py-1 rounded-full font-bold">
                                     Sketch Mapping
+                                </div>
+                                <div className="absolute inset-0 bg-black/30 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
+                                    <Eye className="text-white" size={24} />
                                 </div>
                             </div>
                         )}
 
-                        {/* Vastu Score */}
-                        <div className="text-center space-y-3">
-                            <div className="w-20 h-20 rounded-full bg-secondary/20 flex items-center justify-center mx-auto relative">
-                                <Compass className="text-secondary" size={40} />
-                                <motion.div className="absolute inset-0 rounded-full border-2 border-secondary"
+                        {/* Vastu Score Interaction */}
+                        <div
+                            onClick={() => setShowVastuDetails(true)}
+                            className="text-center space-y-4 bg-white/5 p-8 rounded-3xl border border-white/10 cursor-pointer hover:bg-white/10 transition-all group"
+                        >
+                            <div className="w-24 h-24 rounded-full bg-secondary/10 flex items-center justify-center mx-auto relative group-hover:scale-110 transition-transform">
+                                <Compass className="text-secondary" size={48} />
+                                <motion.div className="absolute inset-0 rounded-full border border-secondary/30"
                                     initial={{ rotate: 0 }} animate={{ rotate: 360 }}
-                                    transition={{ duration: 4, repeat: Infinity, ease: "linear" }} />
+                                    transition={{ duration: 10, repeat: Infinity, ease: "linear" }} />
                             </div>
-                            <h4 className="text-xl text-white font-playfair font-bold">Vastu Compliance</h4>
-                            <div className="flex items-end justify-center gap-2 text-secondary">
-                                <span className="text-4xl font-bold">{analysis.vastu_score}</span>
-                                <span className="text-lg pb-1">/ 100</span>
+                            <div>
+                                <h4 className="text-2xl text-white font-playfair font-bold">Vastu Compliance Score</h4>
+                                <div className="flex items-center justify-center gap-4 mt-2">
+                                    <div className="flex items-end gap-1 text-secondary">
+                                        <span className="text-5xl font-bold">{analysis.vastu_score}</span>
+                                        <span className="text-xl pb-1.5 opacity-60">/100</span>
+                                    </div>
+                                    <span className={`text-[10px] font-space uppercase tracking-[0.2em] px-4 py-1.5 rounded-full border ${analysis.status === 'Auspicious' ? 'border-green-500/50 text-green-400 bg-green-500/10' :
+                                            analysis.status === 'Neutral' ? 'border-yellow-500/50 text-yellow-400 bg-yellow-500/10' :
+                                                'border-red-500/50 text-red-400 bg-red-500/10'
+                                        }`}>{analysis.status}</span>
+                                </div>
                             </div>
-                            <span className={`inline-block text-xs font-space uppercase tracking-widest px-4 py-1.5 rounded-full ${analysis.status === 'Auspicious' ? 'bg-green-400/20 text-green-400' :
-                                analysis.status === 'Neutral' ? 'bg-yellow-400/20 text-yellow-400' :
-                                    'bg-red-400/20 text-red-400'
-                                }`}>{analysis.status}</span>
+                            <div className="flex items-center justify-center gap-2 text-secondary text-[10px] font-space uppercase tracking-[0.2em] opacity-0 group-hover:opacity-100 transition-opacity">
+                                View Remedial Path <ArrowRight size={12} />
+                            </div>
                         </div>
 
-                        {/* Violations */}
-                        {analysis.violations?.length > 0 && (
-                            <div className="space-y-2 max-h-32 overflow-y-auto">
-                                {analysis.violations.slice(0, 3).map((v, i) => (
-                                    <div key={i} className="flex gap-2 text-xs font-inter text-white/80 bg-red-500/10 p-2.5 rounded-lg border border-red-500/20">
-                                        <AlertTriangle className="text-red-400 shrink-0" size={14} />
-                                        <div><strong>{v.item}:</strong> {v.issue}</div>
-                                    </div>
-                                ))}
-                            </div>
-                        )}
-
-                        {/* Remedies */}
-                        {analysis.remedies?.length > 0 && (
-                            <div className="space-y-2 max-h-32 overflow-y-auto">
-                                {analysis.remedies.slice(0, 3).map((r, i) => (
-                                    <div key={i} className="flex gap-2 text-xs font-inter text-white/80 bg-green-500/10 p-2.5 rounded-lg border border-green-500/20">
-                                        <CheckCircle2 className="text-green-400 shrink-0" size={14} />
-                                        <div><strong>{r.action}</strong> {r.smm_product_boost && <span className="text-secondary"> → {r.smm_product_boost}</span>}</div>
-                                    </div>
-                                ))}
-                            </div>
-                        )}
-
-                        <p className="text-white/50 text-xs text-center font-inter">{analysis.summary}</p>
-                        <p className="text-white/40 text-[10px] text-center font-space uppercase tracking-widest">Generating 3D renders next...</p>
+                        <p className="text-white/40 text-xs text-center font-inter px-4">{analysis.summary}</p>
+                        <p className="text-secondary text-[10px] text-center font-space uppercase tracking-[0.4em] font-bold animate-pulse">Scanning Designs...</p>
                     </motion.div>
                 )}
 
                 {/* === STEP 4: RENDERING === */}
                 {step === 'rendering' && (
                     <motion.div key="rendering" initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0, scale: 0.95 }}
-                        className="py-8 space-y-6">
-                        {uploadedImage && (
-                            <div className="relative aspect-video rounded-xl overflow-hidden border border-secondary/30">
-                                <img src={uploadedImage} alt="Your upload" className="w-full h-full object-contain bg-black/50" />
+                        className="py-12 space-y-10">
+                        <div className="flex flex-col items-center text-center space-y-6">
+                            <div className="w-20 h-20 rounded-2xl bg-secondary/10 flex items-center justify-center relative shadow-[0_0_50px_-12px_rgba(212,175,55,0.3)]">
+                                <Loader2 className="animate-spin text-secondary" size={32} />
+                                <div className="absolute inset-0 rounded-2xl border border-secondary/20 animate-pulse" />
                             </div>
-                        )}
-                        <div className="flex flex-col items-center text-center space-y-4">
-                            <Loader2 className="animate-spin text-secondary" size={40} />
-                            <div>
-                                <h4 className="text-lg text-white font-playfair font-bold">Generating Photorealistic Renders</h4>
-                                <p className="text-white/60 font-inter mt-1 text-sm">{statusMessage}</p>
-                                <p className="text-white/40 text-[10px] mt-2 font-space uppercase tracking-widest">
-                                    Creating 3 lighting variations with SMM Modular furniture
-                                </p>
+                            <div className="max-w-md mx-auto">
+                                <h4 className="text-2xl text-white font-playfair font-bold">Synthesizing Architectural Variations</h4>
+                                <p className="text-white/40 font-inter mt-3 text-sm leading-relaxed">{statusMessage}</p>
+                                <div className="mt-8 flex gap-2 justify-center">
+                                    {[0, 1, 2].map(i => (
+                                        <motion.div
+                                            key={i}
+                                            className="w-2 h-2 rounded-full bg-secondary/30"
+                                            animate={{ scale: [1, 1.5, 1], opacity: [0.3, 1, 0.3] }}
+                                            transition={{ duration: 1.5, repeat: Infinity, delay: i * 0.2 }}
+                                        />
+                                    ))}
+                                </div>
                             </div>
                         </div>
                     </motion.div>
@@ -280,27 +404,34 @@ export function AuraAIWidget({ variant = 'hero' }: AuraAIWidgetProps) {
                         className="space-y-5">
 
                         {/* Before / After Comparison */}
-                        <div className="grid grid-cols-2 gap-3">
+                        <div className="grid grid-cols-2 gap-4">
                             {/* Original Upload */}
-                            <div className="relative aspect-[4/3] rounded-xl overflow-hidden border border-white/10">
+                            <div className="relative aspect-[4/3] rounded-2xl overflow-hidden border border-white/10 group cursor-zoom-in" onClick={() => setLightboxImage(uploadedImage)}>
                                 <img src={uploadedImage || ''} alt="Original" className="w-full h-full object-contain bg-black/50" />
                                 <BoundingBoxes objects={analysis.objects} visible={true} />
-                                <div className="absolute top-2 left-2 bg-white/20 backdrop-blur-sm text-white text-[10px] font-space uppercase tracking-widest px-2 py-1 rounded-full">
+                                <div className="absolute top-3 left-3 bg-white/10 backdrop-blur-md text-white text-[10px] font-space uppercase tracking-widest px-3 py-1.5 rounded-full border border-white/20">
                                     Sketch Mapping
+                                </div>
+                                <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
+                                    <Eye className="text-white" size={24} />
                                 </div>
                             </div>
 
                             {/* AI Render */}
-                            <div className="relative aspect-[4/3] rounded-xl overflow-hidden border border-secondary/30 group">
+                            <div className="relative aspect-[4/3] rounded-2xl overflow-hidden border border-secondary/30 group cursor-zoom-in"
+                                onClick={() => setLightboxImage(renders[activeRenderIndex]?.url)}>
                                 {renders.length > 0 ? (
                                     <img src={renders[activeRenderIndex]?.url || ''} alt="AI Render" className="w-full h-full object-cover" />
                                 ) : (
-                                    <div className="w-full h-full bg-primary/50 flex items-center justify-center text-white/40 text-xs">
-                                        No renders yet
+                                    <div className="w-full h-full bg-primary/50 flex items-center justify-center text-white/40 text-xs italic">
+                                        Synthesizing...
                                     </div>
                                 )}
-                                <div className="absolute top-2 left-2 bg-secondary/90 text-primary text-[10px] font-space uppercase tracking-widest px-2 py-1 rounded-full font-bold">
+                                <div className="absolute top-3 left-3 bg-secondary/90 text-primary text-[10px] font-space uppercase tracking-widest px-3 py-1.5 rounded-full font-bold">
                                     After
+                                </div>
+                                <div className="absolute inset-0 bg-black/20 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
+                                    <Eye className="text-white" size={32} />
                                 </div>
                             </div>
                         </div>
@@ -319,19 +450,25 @@ export function AuraAIWidget({ variant = 'hero' }: AuraAIWidgetProps) {
                             </div>
                         )}
 
-                        {/* Mini Vastu Summary */}
-                        <div className="flex items-center justify-between bg-white/5 rounded-xl p-3">
-                            <div className="flex items-center gap-3">
-                                <div className="text-2xl font-bold text-secondary">{analysis.vastu_score}</div>
+                        {/* Vastu Score Interaction */}
+                        <div
+                            onClick={() => setShowVastuDetails(true)}
+                            className="flex items-center justify-between bg-white/5 hover:bg-white/10 rounded-2xl p-5 border border-white/5 cursor-pointer transition-all group"
+                        >
+                            <div className="flex items-center gap-5">
+                                <div className="relative">
+                                    <div className="text-3xl font-bold text-secondary">{analysis.vastu_score}</div>
+                                    <div className="absolute -inset-2 border border-secondary/30 rounded-full animate-pulse" />
+                                </div>
                                 <div>
-                                    <p className="text-white text-xs font-bold">Vastu Score</p>
-                                    <p className={`text-[10px] font-space uppercase ${analysis.status === 'Auspicious' ? 'text-green-400' :
-                                        analysis.status === 'Neutral' ? 'text-yellow-400' : 'text-red-400'
+                                    <p className="text-white text-sm font-bold tracking-tight">Vastu Compliance Score</p>
+                                    <p className={`text-[10px] font-space uppercase tracking-widest ${analysis.status === 'Auspicious' ? 'text-green-400' :
+                                            analysis.status === 'Neutral' ? 'text-yellow-400' : 'text-red-400'
                                         }`}>{analysis.status}</p>
                                 </div>
                             </div>
-                            <div className="text-right text-white/50 text-[10px] font-space uppercase tracking-widest">
-                                {analysis.violations?.length || 0} corrections
+                            <div className="flex items-center gap-2 text-secondary text-[10px] font-space uppercase tracking-widest font-bold group-hover:translate-x-1 transition-transform">
+                                Full Audit <ArrowRight size={14} />
                             </div>
                         </div>
 
