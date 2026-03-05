@@ -126,21 +126,43 @@ export function AuraAIWidget({ variant = 'hero' }: AuraAIWidgetProps) {
         }
     };
 
-    const handleSampleClick = (sample: any) => {
-        setUploadedImage(sample.url);
-        setUploadedBase64(sample.url); // Note: For real prod, this should fetch as base64
-        setRoomType(sample.type);
+    const fetchAsBase64 = async (url: string): Promise<string> => {
+        const response = await fetch(url);
+        const blob = await response.blob();
+        return new Promise((resolve, reject) => {
+            const reader = new FileReader();
+            reader.onloadend = () => resolve(reader.result as string);
+            reader.onerror = reject;
+            reader.readAsDataURL(blob);
+        });
+    };
 
-        if (variant === 'hero') {
-            sessionStorage.setItem('aura_pending_image', sample.url);
-            sessionStorage.setItem('aura_pending_room', sample.type);
-            navigate('/aura-ai');
-            return;
+    const handleSampleClick = async (sample: any) => {
+        try {
+            setError(null);
+            setStep('analyzing');
+            setStatusMessage('Loading Sample Asset...');
+
+            const b64 = await fetchAsBase64(sample.url);
+
+            setUploadedImage(b64);
+            setUploadedBase64(b64);
+            setRoomType(sample.type);
+
+            if (variant === 'hero') {
+                sessionStorage.setItem('aura_pending_image', b64);
+                sessionStorage.setItem('aura_pending_room', sample.type);
+                navigate('/aura-ai');
+                return;
+            }
+
+            const file = new File([], "sample.png", { type: "image/png" });
+            startAIProcess(file, b64, sample.type);
+        } catch (err) {
+            console.error("Sample load error:", err);
+            setError("Failed to load sample image. Please check your connection.");
+            setStep('upload');
         }
-
-        // Mock a file for samples
-        const file = new File([], "sample.png", { type: "image/png" });
-        startAIProcess(file, sample.url, sample.type);
     };
 
     const BoundingBoxes = ({ objects, visible }: { objects: any[], visible: boolean }) => (
