@@ -72,7 +72,7 @@ export const analyzeSketch = async (
     The user selected room type: "${roomType}".`;
 
     const response = await withRetry(() => ai.models.generateContent({
-        model: "gemini-2.5-flash-preview-05-20",
+        model: "gemini-1.5-flash",
         contents: {
             parts: [
                 { inlineData: { mimeType: "image/jpeg", data: base64Image } },
