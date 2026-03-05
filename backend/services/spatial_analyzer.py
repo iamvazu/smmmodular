@@ -1,12 +1,16 @@
 import json
+import os
+import google.generativeai as genai
 
 class SpatialAnalyzer:
     def __init__(self):
         try:
-            from vertexai.preview.generative_models import GenerativeModel
-            self.model = GenerativeModel("gemini-1.5-pro-002")
+            # Use the provided API key or fallback to environment variable
+            api_key = os.getenv("GEMINI_API_KEY", "AIzaSyDBRBY7faHAp1Dbs11iy4aHsyefzNdQHxc")
+            genai.configure(api_key=api_key)
+            self.model = genai.GenerativeModel("gemini-1.5-pro-002")
         except Exception as e:
-            print("Note: Vertex AI Platform not fully configured. Mocking Gemini 1.5 Pro analysis.")
+            print(f"Failed to configure Gemini: {e}")
             self.model = None
         
     async def analyze(self, image_path: str, room_type: str) -> dict:
@@ -14,8 +18,8 @@ class SpatialAnalyzer:
             if not self.model:
                 return self.mock_response(room_type)
 
-            from vertexai.preview.generative_models import Image
-            image = Image.load_from_file(image_path)
+            import PIL.Image
+            image = PIL.Image.open(image_path)
             
             analysis_prompt = f"""
             You are an expert interior designer and architect. Analyze this room image.

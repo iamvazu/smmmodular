@@ -1,28 +1,21 @@
+import os
+import google.generativeai as genai
+from PIL import Image, ImageDraw
+
 class RenderGenerator:
     def __init__(self):
         self.ready = False
         try:
-            import torch
-            from diffusers import StableDiffusionXLControlNetPipeline, ControlNetModel
-            
-            print("Loading ControlNet Models. This may take a moment on first run...")
-            self.controlnet = ControlNetModel.from_pretrained(
-                "diffusers/controlnet-canny-sdxl-1.0",
-                torch_dtype=torch.float16
-            )
-            
-            self.pipe = StableDiffusionXLControlNetPipeline.from_pretrained(
-                "stabilityai/stable-diffusion-xl-base-1.0",
-                controlnet=self.controlnet,
-                torch_dtype=torch.float16
-            )
-            
-            # In a real environment, load SMM LoRA:
-            # self.pipe.load_lora_weights("smm-furniture-lora.safetensors")
+            api_key = os.getenv("GEMINI_API_KEY", "AIzaSyDBRBY7faHAp1Dbs11iy4aHsyefzNdQHxc")
+            genai.configure(api_key=api_key)
+            # Use Gemini for text-based design descriptions
+            # (Gemini does not generate images directly, so we use it to 
+            #  produce rich design recommendations, and serve curated renders)
+            self.model = genai.GenerativeModel("gemini-1.5-pro-002")
             self.ready = True
-            print("SDXL Pipeline Ready for Generation.")
+            print("Gemini Render Advisor Pipeline Ready.")
         except Exception as e:
-            print(f"Warning: Stable Diffusion pipeline disabled. Running in stub mode. Details: {e}")
+            print(f"Warning: Gemini render advisor disabled. Running in stub mode. Details: {e}")
 
     async def generate(
         self, 
@@ -32,8 +25,6 @@ class RenderGenerator:
         room_type: str,
         furniture_items: list
     ):
-        from PIL import Image, ImageDraw
-        
         style_prompts = {
             "modern": "modern minimalist interior design, clean lines, neutral colors",
             "contemporary_indian": "contemporary Indian interior, warm wood tones, ethnic accents",
@@ -48,34 +39,48 @@ class RenderGenerator:
         }
         
         furniture_desc = ", ".join([f"SMM {item.get('name', 'Custom Item')} in {item.get('finish', 'Wood')}" for item in furniture_items])
-        
-        prompt = f"""
-        Professional interior photography of a {room_type}, 
-        {style_prompts.get(style, style_prompts['modern'])}, {lighting.get(time_of_day, lighting['morning'])}.
-        Featuring: {furniture_desc}.
-        Photorealistic, 4K, architectural digest quality, 
-        sharp focus, professional color grading.
-        """
-        
-        negative_prompt = "blurry, low quality, distorted furniture, unrealistic proportions, cartoon, illustration"
-        
+
+        # Map room types to curated SMM render images
+        # These are high-quality project photos from the SMM portfolio
+        render_map = {
+            "living_room": "/images/services/residential-projects/img(18).webp",
+            "bedroom": "/images/services/residential-projects/img(22).webp",
+            "master_bedroom": "/images/services/residential-projects/img(22).webp",
+            "kitchen": "/images/services/residential-projects/img(26).webp",
+            "office": "/images/services/commercial-projects/img(1).webp",
+            "entire_home": "/images/services/residential-projects/img(18).webp",
+        }
+
+        selected_render = render_map.get(room_type, render_map["living_room"])
+
         if self.ready:
-            print(f"Generating image with prompt: {prompt}")
-            image = self.pipe(
-                prompt=prompt,
-                negative_prompt=negative_prompt,
-                image=control_image,
-                num_inference_steps=30, # adjusted for speed
-                guidance_scale=7.5,
-                controlnet_conditioning_scale=0.8
-            ).images[0]
-            return image
+            # Use Gemini to generate a rich design description
+            prompt = f"""
+            You are an expert interior designer working for SMM Modular Furniture.
+            Generate a short, elegant description (2-3 sentences) of a {room_type} designed in
+            {style_prompts.get(style, style_prompts['modern'])} style, with 
+            {lighting.get(time_of_day, lighting['morning'])} lighting.
+            Furniture: {furniture_desc}.
+            Make it sound premium and aspirational.
+            """
+            try:
+                response = self.model.generate_content(prompt)
+                design_description = response.text
+            except Exception as e:
+                print(f"Gemini design description failed: {e}")
+                design_description = f"A stunning {room_type} featuring premium SMM modular furniture in a {style} aesthetic."
+            
+            return {
+                "render_url": selected_render,
+                "design_description": design_description,
+                "style": style,
+                "room_type": room_type
+            }
         else:
-            print("Notice: Returning generated placeholder render because diffusers wasn't loaded.")
-            # Create a mock image
-            img = Image.new('RGB', (1024, 768), color = (212, 175, 55)) # Gold color
-            d = ImageDraw.Draw(img)
-            d.text((50,300), "Aura AI: AI Generated Placeholder", fill=(255,255,255))
-            d.text((50,350), f"Room: {room_type}", fill=(255,255,255))
-            d.text((50,400), f"Style: {style}", fill=(255,255,255))
-            return img
+            print("Notice: Returning placeholder render because Gemini wasn't loaded.")
+            return {
+                "render_url": selected_render,
+                "design_description": f"A beautifully designed {room_type} with premium SMM modular furniture.",
+                "style": style,
+                "room_type": room_type
+            }

@@ -1,0 +1,26 @@
+{
+    "name": "SMM Modular Furniture - Aura AI",
+    "description": "SMM Modular Furniture website with Aura AI integration",
+    "buildpacks": [
+        {
+            "url": "heroku/nodejs"
+        },
+        {
+            "url": "heroku/python"
+        }
+    ],
+    "env": {
+        "GEMINI_API_KEY": {
+            "description": "Google Gemini API Key for AI analysis",
+            "required": true
+        },
+        "PERFEX_API_KEY": {
+            "description": "Perfex CRM API Key for lead capture",
+            "required": false
+        },
+        "PERFEX_API_URL": {
+            "description": "Perfex CRM API URL for lead capture",
+            "required": false
+        }
+    }
+}

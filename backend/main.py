@@ -1,6 +1,10 @@
 import os
-from fastapi import FastAPI, UploadFile, File
+import uuid
+from pathlib import Path
+from fastapi import FastAPI, UploadFile, File, Request
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.staticfiles import StaticFiles
+from fastapi.responses import FileResponse
 from pydantic import BaseModel
 
 # Internal services
@@ -14,45 +18,44 @@ app = FastAPI(title="Aura AI API")
 # Add CORS middleware to allow connections from local Vite (or deployed frontend)
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"], # In production, restrict this to the actual frontend URL
+    allow_origins=["*"],  # In production, restrict this to the actual frontend URL
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
 )
 
-# Mock persistence and utility functions
-async def save_to_gcs(file: UploadFile) -> str:
-    # Save file logic would go here
-    return f"gs://smm-aura-ai-uploads/{file.filename}"
+# In-memory session store (replace with Redis/Postgres in production)
+session_store: dict = {}
+
+# Helper save function
+async def save_to_temp_storage(file: UploadFile) -> str:
+    os.makedirs("/tmp/smm_aura_uploads", exist_ok=True)
+    temp_path = f"/tmp/smm_aura_uploads/{uuid.uuid4()}_{file.filename}"
+    
+    with open(temp_path, "wb") as buffer:
+        content = await file.read()
+        buffer.write(content)
+        
+    return temp_path
 
 def generate_session_id():
-    import uuid
     return str(uuid.uuid4())
 
-async def get_session_data(session_id: str):
-    return {"room_type": "living_room", "detected_furniture": []}
-
-def create_controlnet_input(spatial_data):
-    from PIL import Image
-    return Image.new('RGB', (1024, 1024), color = 'white')
-
 def get_smm_catalog():
-    return [{"name": "Elegance Sofa", "finish": "Teak Wood", "category": "sofa"}]
+    return [
+        {"name": "Elegance Sofa", "finish": "Teak Wood", "category": "sofa"},
+        {"name": "Royal Wardrobe", "finish": "Walnut", "category": "wardrobe"},
+        {"name": "Modular Kitchen Set", "finish": "Marine Ply", "category": "kitchen"},
+    ]
 
-async def upscale_image(image):
-    return image
-
-async def save_render_to_gcs(image, session_id):
-    return f"https://storage.googleapis.com/smm-renders/{session_id}.png"
-
-def create_thumbnail(image):
-    return "thumbnail-url"
-
-def extract_furniture_recommendations(data):
-    return [{"category": "sofa", "price": "45000"}]
-
-def calculate_estimate(data):
-    return 150000.00
+def calculate_estimate(spatial_data):
+    # Basic estimation logic based on room dimensions
+    dims = spatial_data.get("estimated_dimensions", {})
+    length = dims.get("length", 12)
+    width = dims.get("width", 10)
+    area = length * width
+    # Rough cost per sq ft for modular interiors
+    return round(area * 450, 2)
 
 # Initialize engines
 spatial_analyzer = SpatialAnalyzer()
@@ -98,59 +101,94 @@ async def analyze_upload(
     Analyze uploaded sketch/photo using Gemini 1.5 Pro
     Returns: Spatial layout, dimensions, Vastu analysis
     """
-    # Save to GCS
-    gcs_path = await save_to_gcs(file)
+    # Save locally to be sent to Gemini
+    local_path = await save_to_temp_storage(file)
     
-    # Analyze spatially using Custom Service
-    spatial_data = await spatial_analyzer.analyze(gcs_path, room_type)
+    # Analyze spatially using Gemini
+    spatial_data = await spatial_analyzer.analyze(local_path, room_type)
     
     # Vastu analysis
     vastu_result = vastu_engine.analyze_layout(spatial_data, room_type)
     
+    # Clean up the temp image
+    try:
+        os.remove(local_path)
+    except Exception:
+        pass
+
+    # Generate a session ID and store results for later retrieval
+    session_id = generate_session_id()
+    session_store[session_id] = {
+        "spatial_data": spatial_data,
+        "vastu_analysis": vastu_result,
+        "room_type": room_type
+    }
+    
     return {
         "spatial_data": spatial_data,
         "vastu_analysis": vastu_result,
-        "session_id": generate_session_id()
+        "session_id": session_id
     }
 
 @app.post("/api/v1/generate")
-async def generate_render(
+async def generate_render_endpoint(
     session_id: str,
     style: str = "modern",
     time_of_day: str = "morning",
     apply_vastu_corrections: bool = True
 ):
     """
-    Generate photorealistic render using Stable Diffusion XL + ControlNet
+    Generate photorealistic render using Gemini + curated SMM portfolio
     """
-    # Retrieve spatial data from DB/Cache
-    spatial_data = await get_session_data(session_id)
+    # Retrieve spatial data from session store
+    session = session_store.get(session_id, {"room_type": "living_room", "detected_furniture": []})
+    room_type = session.get("room_type", "living_room")
     
-    # Prepare ControlNet conditioning
-    control_image = create_controlnet_input(spatial_data)
-    
-    # Generate with SDXL
-    render = await render_generator.generate(
-        control_image=control_image,
+    # Generate render with Gemini-powered advisor
+    render_result = await render_generator.generate(
+        control_image=None,
         style=style,
         time_of_day=time_of_day,
-        room_type=spatial_data.get("room_type", "living_room"),
+        room_type=room_type,
         furniture_items=get_smm_catalog()
     )
     
-    # Upscale to 4K
-    final_render = await upscale_image(render)
-    
-    # Save and return URL
-    output_url = await save_render_to_gcs(final_render, session_id)
+    spatial_data = session.get("spatial_data", {})
     
     return {
-        "render_url": output_url,
-        "thumbnail_url": create_thumbnail(final_render),
-        "furniture_items": extract_furniture_recommendations(spatial_data),
-        "estimated_cost": calculate_estimate(spatial_data)
+        "render_url": render_result.get("render_url", "/images/services/residential-projects/img(18).webp"),
+        "thumbnail_url": "",
+        "furniture_items": get_smm_catalog(),
+        "estimated_cost": calculate_estimate(spatial_data),
+        "design_description": render_result.get("design_description", "")
     }
+
+@app.get("/api/v1/session/{session_id}")
+async def get_session(session_id: str):
+    """
+    Retrieve a stored session's analysis results
+    """
+    session = session_store.get(session_id)
+    if not session:
+        return {"error": "Session not found"}
+    return session
 
 @app.get("/health")
 def health_check():
-    return {"status": "healthy", "engines": {"sdxl": render_generator.ready}}
+    return {"status": "healthy", "engines": {"gemini": render_generator.ready}}
+
+# Serve React frontend build from ../dist
+DIST_DIR = Path(__file__).resolve().parent.parent / "dist"
+if DIST_DIR.is_dir():
+    # Mount static assets (JS, CSS, images)
+    app.mount("/assets", StaticFiles(directory=str(DIST_DIR / "assets")), name="assets")
+    if (DIST_DIR / "images").is_dir():
+        app.mount("/images", StaticFiles(directory=str(DIST_DIR / "images")), name="images")
+
+    @app.get("/{full_path:path}")
+    async def serve_spa(request: Request, full_path: str):
+        """Catch-all route: serve static files or fallback to index.html for SPA routing"""
+        file_path = DIST_DIR / full_path
+        if file_path.is_file():
+            return FileResponse(str(file_path))
+        return FileResponse(str(DIST_DIR / "index.html"))

@@ -1,4 +1,5 @@
-const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8000/api/v1';
+const IS_PROD = import.meta.env.PROD;
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || (IS_PROD ? '/api/v1' : 'http://localhost:8000/api/v1');
 
 export interface AnalysisResponse {
     spatial_data: any;
