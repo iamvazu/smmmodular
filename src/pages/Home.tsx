@@ -6,8 +6,11 @@ import { SEO } from '../components/SEO';
 import { AuraAIWidget } from '../components/AuraAIWidget';
 import { StatCounter } from '../components/StatCounter';
 import { AIGallery } from '../components/AIGallery';
+import { LeadModal } from '../components/LeadModal';
+import { useState } from 'react';
 
 const Home = () => {
+    const [isLeadModalOpen, setIsLeadModalOpen] = useState(false);
     const heroRef = useRef(null);
     const { scrollYProgress } = useScroll({
         target: heroRef,
@@ -99,9 +102,9 @@ const Home = () => {
                                 Explore Aura AI
                                 <ArrowRight size={18} className="group-hover:translate-x-2 transition-transform" />
                             </Link>
-                            <a href="tel:+917624997792" className="btn-outline border-white/20 hover:border-white w-full sm:w-auto text-center">
+                            <button onClick={() => setIsLeadModalOpen(true)} className="btn-outline border-white/20 hover:border-white w-full sm:w-auto text-center text-white">
                                 Book Free Consult
-                            </a>
+                            </button>
                         </div>
                     </motion.div>
                 </div>
@@ -319,12 +322,13 @@ const Home = () => {
                         <p className="text-base md:text-2xl font-inter opacity-80 leading-relaxed max-w-2xl mx-auto mb-12">
                             Expert consultation, photorealistic 3D visualization, and a 15-year warranty guarantee.
                         </p>
-                        <button className="bg-primary text-white px-10 md:px-16 py-5 md:py-7 font-space font-bold uppercase tracking-[0.2em] transform transition-all hover:scale-105 hover:bg-black active:scale-95 shadow-3xl text-[10px] md:text-sm">
+                        <button onClick={() => setIsLeadModalOpen(true)} className="bg-primary text-white px-10 md:px-16 py-5 md:py-7 font-space font-bold uppercase tracking-[0.2em] transform transition-all hover:scale-105 hover:bg-black active:scale-95 shadow-3xl text-[10px] md:text-sm">
                             Book Free Consult
                         </button>
                     </div>
                 </div>
             </section>
+            <LeadModal isOpen={isLeadModalOpen} onClose={() => setIsLeadModalOpen(false)} />
         </div>
     );
 };

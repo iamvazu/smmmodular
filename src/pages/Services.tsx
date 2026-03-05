@@ -2,8 +2,11 @@ import { motion } from 'framer-motion';
 import { ArrowRight, Hammer, Layers, Ruler, Home, Building2, Briefcase, ChevronRight } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { SEO } from '../components/SEO';
+import { LeadModal } from '../components/LeadModal';
+import { useState } from 'react';
 
 const Services = () => {
+    const [isLeadModalOpen, setIsLeadModalOpen] = useState(false);
     const categories = [
         {
             title: "Modular Kitchens",
@@ -158,9 +161,10 @@ const Services = () => {
             <section className="bg-primary py-20 md:py-32">
                 <div className="container-custom text-center">
                     <h2 className="text-3xl sm:text-4xl md:text-6xl font-playfair font-bold text-white mb-10 leading-tight">Ready to bring your <br className="hidden sm:block" /> vision to life?</h2>
-                    <button className="btn-primary mx-auto md:px-16">Get A Free Quote Today</button>
+                    <button onClick={() => setIsLeadModalOpen(true)} className="btn-primary mx-auto md:px-16">Get A Free Quote Today</button>
                 </div>
             </section>
+            <LeadModal isOpen={isLeadModalOpen} onClose={() => setIsLeadModalOpen(false)} title="Get a Free Quote" />
         </div>
     );
 };

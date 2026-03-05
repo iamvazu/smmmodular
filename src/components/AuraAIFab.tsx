@@ -2,9 +2,11 @@ import { useState, useEffect } from 'react';
 import { Wand2, X } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Link, useLocation } from 'react-router-dom';
+import { LeadModal } from './LeadModal';
 
 export function AuraAIFab() {
     const [isOpen, setIsOpen] = useState(false);
+    const [isLeadModalOpen, setIsLeadModalOpen] = useState(false);
     const location = useLocation();
 
     // Hide FAB if on the dedicated Aura AI page
@@ -39,13 +41,15 @@ export function AuraAIFab() {
                             >
                                 Upload Sketch
                             </Link>
-                            <Link
-                                to="/services"
-                                onClick={() => setIsOpen(false)}
+                            <button
+                                onClick={() => {
+                                    setIsOpen(false);
+                                    setIsLeadModalOpen(true);
+                                }}
                                 className="w-full border border-primary/20 text-primary font-space font-bold uppercase tracking-widest text-[10px] py-3 rounded text-center block hover:bg-primary/5 transition-colors"
                             >
                                 Chat with Designer
-                            </Link>
+                            </button>
                         </div>
                     </motion.div>
                 )}
@@ -66,6 +70,7 @@ export function AuraAIFab() {
                     </span>
                 )}
             </motion.button>
+            <LeadModal isOpen={isLeadModalOpen} onClose={() => setIsLeadModalOpen(false)} />
         </>
     );
 }

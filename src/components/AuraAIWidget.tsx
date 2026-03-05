@@ -436,8 +436,17 @@ export function AuraAIWidget({ variant = 'hero' }: AuraAIWidgetProps) {
                         <p className="text-center text-[10px] text-white/40 uppercase font-space tracking-widest">SMM Modular Furniture Design Engine</p>
 
                         {error && (
-                            <div className="bg-red-500/20 text-red-200 p-3 rounded-lg text-xs font-inter text-center mt-4 border border-red-500/30">
-                                {error}
+                            <div className="bg-red-500/10 border border-red-500/20 rounded-2xl p-6 text-center space-y-4">
+                                <AlertTriangle className="text-red-500 mx-auto" size={32} />
+                                <div>
+                                    <h4 className="text-white font-bold mb-1">Service Temporarily Unavailable</h4>
+                                    <p className="text-white/60 text-xs font-inter leading-relaxed">
+                                        {error.includes("API key") || error.includes("403") || error.includes("400")
+                                            ? "Our AI engine is currently undergoing maintenance. Please try again in 5 minutes."
+                                            : error}
+                                    </p>
+                                </div>
+                                <button onClick={resetProcess} className="btn-primary py-3 px-8 text-[10px]">Try Again</button>
                             </div>
                         )}
                     </motion.div>
