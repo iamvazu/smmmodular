@@ -3,6 +3,8 @@ import { useDropzone } from 'react-dropzone';
 import { Upload, Wand2, Compass, Download, Loader2, ArrowRight } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { trackAuraEvent } from '../lib/analytics';
+import { submitImageForAnalysis, pollRenderStatus } from '../lib/apiClient';
+import { useNavigate } from 'react-router-dom';
 
 interface AuraAIWidgetProps {
     variant?: 'hero' | 'floating' | 'fullscreen';
@@ -14,6 +16,47 @@ export function AuraAIWidget({ variant = 'hero' }: AuraAIWidgetProps) {
     const [roomType, setRoomType] = useState('living_room');
     const [vastuScore, setVastuScore] = useState(0);
     const [generatedImage, setGeneratedImage] = useState<string | null>(null);
+    const [error, setError] = useState<string | null>(null);
+    const navigate = useNavigate();
+
+    const startRealProcess = async (file: File, selectedRoomType: string) => {
+        try {
+            setError(null);
+            setStep('analyzing');
+
+            // 1. Backend Analysis
+            const analysisResult = await submitImageForAnalysis(file, selectedRoomType);
+            setVastuScore(analysisResult.vastu_analysis.score);
+
+            // 2. Routing logic for "Entire Home 2D Plan"
+            if (selectedRoomType === 'entire_home') {
+                // Short aesthetic delay for the Analyzing loader
+                setTimeout(() => {
+                    navigate(`/aura-ai/report/${analysisResult.session_id}`);
+                }, 1500);
+                return; // Stop local widget progression
+            }
+
+            // 3. Continue individual room widget generation
+            setStep('vastu');
+            trackAuraEvent('Vastu Analysis Viewed', { score: analysisResult.vastu_analysis.score, violations_count: analysisResult.vastu_analysis.violations.length });
+
+            // Brief visual pause simulating reading
+            await new Promise(resolve => setTimeout(resolve, 2500));
+            setStep('render');
+
+            // 4. Fire rendering request
+            const renderResult = await pollRenderStatus(analysisResult.session_id, 'modern', 'morning');
+            setGeneratedImage(renderResult.render_url);
+            setStep('result');
+            trackAuraEvent('Render Generated', { style: 'modern', time_of_day: 'morning' });
+
+        } catch (err) {
+            console.error("AI interaction error:", err);
+            setError("Something went wrong with the AI connection. Please try again.");
+            setStep('upload');
+        }
+    };
 
     const onDrop = useCallback((acceptedFiles: File[]) => {
         if (acceptedFiles.length > 0) {
@@ -29,11 +72,11 @@ export function AuraAIWidget({ variant = 'hero' }: AuraAIWidgetProps) {
                     file_type: file.type
                 });
 
-                startMockProcess();
+                startRealProcess(file, roomType);
             };
             reader.readAsDataURL(file);
         }
-    }, []);
+    }, [roomType, navigate]);
 
     const { getRootProps, getInputProps, isDragActive } = useDropzone({
         onDrop,
@@ -41,24 +84,7 @@ export function AuraAIWidget({ variant = 'hero' }: AuraAIWidgetProps) {
         maxFiles: 1,
     });
 
-    const startMockProcess = () => {
-        setStep('analyzing');
-        setTimeout(() => {
-            setStep('vastu');
-            setVastuScore(85);
-            trackAuraEvent('Vastu Analysis Viewed', { score: 85, violations_count: 0 });
-
-            setTimeout(() => {
-                setStep('render');
-                setTimeout(() => {
-                    setGeneratedImage('/images/services/residential-projects/img(18).webp'); // mock render using existing image
-                    setStep('result');
-                    trackAuraEvent('Render Generated', { style: 'Modern', time_of_day: 'Morning', generation_time: 5000 });
-                }, 2500);
-            }, 2500);
-        }, 2500);
-    };
-
+    // Deprecated mock method removed
     const resetProcess = () => {
         setUploadedImage(null);
         setGeneratedImage(null);
@@ -97,6 +123,7 @@ export function AuraAIWidget({ variant = 'hero' }: AuraAIWidgetProps) {
                                 <option value="bedroom">Master Bedroom</option>
                                 <option value="kitchen">Modular Kitchen</option>
                                 <option value="office">Home Office</option>
+                                <option value="entire_home">2D Floor Plan (Entire Home)</option>
                             </select>
                         </div>
 
@@ -114,6 +141,12 @@ export function AuraAIWidget({ variant = 'hero' }: AuraAIWidgetProps) {
                             </div>
                         </div>
                         <p className="text-center text-[10px] text-white/40 uppercase font-space tracking-widest">Powered by Gemini 1.5 Pro</p>
+
+                        {error && (
+                            <div className="bg-red-500/20 text-red-200 p-3 rounded-lg text-xs font-inter text-center mt-4 border border-red-500/30">
+                                {error}
+                            </div>
+                        )}
                     </motion.div>
                 )}
 

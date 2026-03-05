@@ -15,6 +15,7 @@ import Commercial from './pages/Commercial';
 import Corporate from './pages/Corporate';
 import Location from './pages/Location';
 import AuraAI from './pages/AuraAI';
+import AuraResult from './pages/AuraResult';
 import { AuraAIFab } from './components/AuraAIFab';
 
 function App() {
@@ -41,6 +42,7 @@ function App() {
                     <Routes>
                         <Route path="/" element={<Home />} />
                         <Route path="/aura-ai" element={<AuraAI />} />
+                        <Route path="/aura-ai/report/:sessionId" element={<AuraResult />} />
                         <Route path="/services" element={<Services />} />
                         <Route path="/our-factory" element={<OurFactory />} />
                         <Route path="/residential" element={<Residential />} />

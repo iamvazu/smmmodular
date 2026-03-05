@@ -1,5 +1,6 @@
 import os
 from fastapi import FastAPI, UploadFile, File
+from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 
 # Internal services
@@ -8,6 +9,15 @@ from services.vastu_engine import VastuEngine
 from services.render_generator import RenderGenerator
 
 app = FastAPI(title="Aura AI API")
+
+# Add CORS middleware to allow connections from local Vite (or deployed frontend)
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"], # In production, restrict this to the actual frontend URL
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
 
 # Mock persistence and utility functions
 async def save_to_gcs(file: UploadFile) -> str:
