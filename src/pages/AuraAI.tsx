@@ -19,48 +19,31 @@ const AuraAI = () => {
                 <div className="absolute inset-0 bg-primary/95 z-0"></div>
 
                 <div className="container-custom relative z-10">
-                    <div className="flex flex-col lg:flex-row items-center gap-12 lg:gap-20">
-                        {/* Text Content */}
-                        <div className="w-full lg:w-1/2 space-y-6">
+                    <div className="flex flex-col items-center">
+                        <div className="w-full max-w-5xl">
                             <motion.div
                                 initial={{ opacity: 0, y: 20 }}
                                 animate={{ opacity: 1, y: 0 }}
                                 transition={{ duration: 0.8 }}
+                                className="mb-12 text-center"
                             >
                                 <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-secondary/10 border border-secondary/20 text-secondary text-[10px] md:text-sm font-space uppercase tracking-widest font-bold mb-6">
                                     <Sparkles size={16} /> Aura AI Design Engine
                                 </div>
-                                <h1 className="text-4xl md:text-6xl lg:text-7xl font-playfair font-bold leading-tight mb-6">
-                                    See Your Dream <br className="hidden md:block" />
-                                    Home <span className="text-secondary italic">Before</span> <br className="hidden md:block" />
-                                    It's Built.
+                                <h1 className="text-4xl md:text-6xl font-playfair font-bold leading-tight mb-4 text-center">
+                                    Aura AI <span className="text-secondary italic">Studio</span>
                                 </h1>
-                                <p className="text-white/70 font-inter text-lg md:text-xl max-w-xl mb-8 leading-relaxed">
-                                    Upload a simple sketch, room photo, or floor plan. Our AI engine generates a photorealistic 3D render featuring SMM furniture in under 30 seconds.
+                                <p className="text-white/60 font-inter text-lg max-w-2xl mx-auto">
+                                    Upload your sketch or photo below to begin your transformation.
                                 </p>
-
-                                <div className="flex flex-wrap gap-4 items-center">
-                                    <div className="flex items-center gap-2 text-sm font-space uppercase tracking-widest text-white/50">
-                                        <CheckCircle2 size={16} className="text-secondary" /> Free to use
-                                    </div>
-                                    <div className="flex items-center gap-2 text-sm font-space uppercase tracking-widest text-white/50">
-                                        <CheckCircle2 size={16} className="text-secondary" /> Vastu Checked
-                                    </div>
-                                    <div className="flex items-center gap-2 text-sm font-space uppercase tracking-widest text-white/50">
-                                        <CheckCircle2 size={16} className="text-secondary" /> 4K Download
-                                    </div>
-                                </div>
                             </motion.div>
-                        </div>
 
-                        {/* Widget Area */}
-                        <div className="w-full lg:w-1/2">
                             <motion.div
-                                initial={{ opacity: 0, scale: 0.95 }}
+                                initial={{ opacity: 0, scale: 0.98 }}
                                 animate={{ opacity: 1, scale: 1 }}
                                 transition={{ duration: 0.8, delay: 0.2 }}
                             >
-                                <AuraAIWidget variant="hero" />
+                                <AuraAIWidget variant="fullscreen" />
                             </motion.div>
                         </div>
                     </div>

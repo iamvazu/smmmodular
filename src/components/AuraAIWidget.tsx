@@ -1,4 +1,5 @@
-import { useState, useCallback } from 'react';
+import { useState, useCallback, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { useDropzone } from 'react-dropzone';
 import { Upload, Wand2, Compass, Download, Loader2, ArrowRight, CheckCircle2, AlertTriangle, ChevronLeft, ChevronRight, Eye, Calendar, Clock, X } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
@@ -12,6 +13,7 @@ interface AuraAIWidgetProps {
 }
 
 export function AuraAIWidget({ variant = 'hero' }: AuraAIWidgetProps) {
+    const navigate = useNavigate();
     const [step, setStep] = useState<'upload' | 'analyzing' | 'vastu' | 'rendering' | 'result'>('upload');
     const [uploadedImage, setUploadedImage] = useState<string | null>(null);
     const [uploadedBase64, setUploadedBase64] = useState<string>('');
@@ -37,6 +39,25 @@ export function AuraAIWidget({ variant = 'hero' }: AuraAIWidgetProps) {
     });
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [isSuccess, setIsSuccess] = useState(false);
+
+    useEffect(() => {
+        // Only trigger auto-start if we are in fullscreen mode (the dedicated page)
+        if (variant === 'fullscreen') {
+            const pendingImage = sessionStorage.getItem('aura_pending_image');
+            const pendingRoom = sessionStorage.getItem('aura_pending_room');
+            if (pendingImage) {
+                sessionStorage.removeItem('aura_pending_image');
+                sessionStorage.removeItem('aura_pending_room');
+                setUploadedImage(pendingImage);
+                setUploadedBase64(pendingImage);
+                if (pendingRoom) setRoomType(pendingRoom);
+
+                // Construct a fake File object for the process
+                const file = new File([], "sketch.png", { type: "image/png" });
+                startAIProcess(file, pendingImage, pendingRoom || roomType);
+            }
+        }
+    }, [variant]);
 
     const startAIProcess = async (file: File, base64Data: string, selectedRoomType: string) => {
         try {
@@ -102,6 +123,15 @@ export function AuraAIWidget({ variant = 'hero' }: AuraAIWidgetProps) {
             const reader = new FileReader();
             reader.onload = (e) => {
                 const dataUrl = e.target?.result as string;
+
+                if (variant === 'hero') {
+                    // Store and Redirect
+                    sessionStorage.setItem('aura_pending_image', dataUrl);
+                    sessionStorage.setItem('aura_pending_room', roomType);
+                    navigate('/aura-ai');
+                    return;
+                }
+
                 setUploadedImage(dataUrl);
                 setUploadedBase64(dataUrl);
                 startAIProcess(file, dataUrl, roomType);
@@ -301,100 +331,71 @@ export function AuraAIWidget({ variant = 'hero' }: AuraAIWidgetProps) {
         </AnimatePresence>
     );
 
-    const VastuModal = () => (
-        <AnimatePresence>
-            {showVastuDetails && analysis && (
-                <motion.div
-                    initial={{ opacity: 0 }}
-                    animate={{ opacity: 1 }}
-                    exit={{ opacity: 0 }}
-                    className="fixed inset-0 z-[100] bg-primary/95 backdrop-blur-xl flex items-center justify-center p-4"
-                >
-                    <motion.div
-                        initial={{ y: 20, opacity: 0 }}
-                        animate={{ y: 0, opacity: 1 }}
-                        exit={{ y: 20, opacity: 0 }}
-                        className="bg-zinc-900 border border-secondary/30 rounded-3xl p-6 md:p-10 max-w-4xl w-full max-h-[90vh] overflow-hidden flex flex-col"
-                    >
-                        <div className="flex items-center justify-between mb-8">
-                            <div>
-                                <h4 className="text-2xl md:text-3xl font-playfair font-bold text-white">Vastu Audit & Remedial Path</h4>
-                                <p className="text-secondary text-sm font-space uppercase tracking-widest mt-1">SMM Modular Expert Analysis</p>
+    const VastuAnalysisFlow = ({ analysis }: { analysis: AnalysisResult }) => (
+        <div className="space-y-10 pt-10 border-t border-white/10">
+            <div className="text-center">
+                <h4 className="text-2xl font-playfair font-bold text-white mb-2">Vastu Audit & Remedial Path</h4>
+                <p className="text-secondary text-[10px] font-space uppercase tracking-[0.2em]">Full Expert Analysis</p>
+            </div>
+
+            <div className="grid md:grid-cols-2 gap-8">
+                {/* Detailed Violations */}
+                <section>
+                    <h5 className="text-white font-bold mb-4 flex items-center gap-2 border-l-2 border-red-500 pl-3 uppercase text-xs tracking-widest">
+                        Identified Discrepancies
+                    </h5>
+                    <div className="grid gap-4">
+                        {analysis.violations.map((v, i) => (
+                            <div key={i} className="bg-white/5 border border-white/10 rounded-2xl p-6">
+                                <div className="flex justify-between items-start mb-3">
+                                    <span className="text-red-400 font-bold text-[10px] uppercase tracking-wider">{v.item}</span>
+                                    <span className="bg-red-500/10 text-red-400 text-[8px] px-2 py-0.5 rounded font-space uppercase">Correction Required</span>
+                                </div>
+                                <p className="text-white text-sm mb-3 leading-relaxed">{v.issue}</p>
+                                <div className="flex items-center gap-2 text-[10px] text-white/40 italic">
+                                    <AlertTriangle size={12} className="text-red-400/40" />
+                                    Impact: {v.impact}
+                                </div>
                             </div>
-                            <button onClick={() => setShowVastuDetails(false)} className="bg-white/10 hover:bg-white/20 p-2 rounded-full text-white transition-colors">
-                                <ChevronLeft size={24} />
-                            </button>
-                        </div>
+                        ))}
+                    </div>
+                </section>
 
-                        <div className="flex-1 overflow-y-auto pr-2 space-y-10 custom-scrollbar">
-                            {/* Detailed Violations */}
-                            <section>
-                                <h5 className="text-white font-bold mb-4 flex items-center gap-2 border-l-2 border-red-500 pl-3">
-                                    Identified Discrepancies
-                                </h5>
-                                <div className="grid gap-4">
-                                    {analysis.violations.map((v, i) => (
-                                        <div key={i} className="bg-white/5 border border-white/10 rounded-xl p-4">
-                                            <div className="flex justify-between items-start mb-2">
-                                                <span className="text-red-400 font-bold text-sm uppercase tracking-wider">{v.item}</span>
-                                                <span className="bg-red-500/10 text-red-400 text-[10px] px-2 py-0.5 rounded font-space uppercase">Correction Required</span>
-                                            </div>
-                                            <p className="text-white text-sm mb-2">{v.issue}</p>
-                                            <div className="flex items-center gap-2 text-[11px] text-white/50 italic">
-                                                <AlertTriangle size={12} className="text-red-400/50" />
-                                                Impact: {v.impact}
-                                            </div>
-                                        </div>
-                                    ))}
+                {/* Detailed Remedies */}
+                <section>
+                    <h5 className="text-white font-bold mb-4 flex items-center gap-2 border-l-2 border-green-500 pl-3 uppercase text-xs tracking-widest">
+                        SMM Remedial Solutions
+                    </h5>
+                    <div className="grid gap-4">
+                        {analysis.remedies.map((r, i) => (
+                            <div key={i} className="bg-secondary/5 border border-secondary/10 rounded-2xl p-6">
+                                <div className="flex justify-between items-start mb-3">
+                                    <span className="text-secondary font-bold text-[10px] uppercase tracking-wider">Solution {i + 1}</span>
+                                    <span className="bg-secondary/10 text-secondary text-[8px] px-2 py-0.5 rounded font-space uppercase tracking-widest">Recommended</span>
                                 </div>
-                            </section>
-
-                            {/* Detailed Remedies */}
-                            <section>
-                                <h5 className="text-white font-bold mb-4 flex items-center gap-2 border-l-2 border-green-500 pl-3">
-                                    SMM Remedial Solutions
-                                </h5>
-                                <div className="grid gap-4">
-                                    {analysis.remedies.map((r, i) => (
-                                        <div key={i} className="bg-secondary/5 border border-secondary/20 rounded-xl p-4">
-                                            <div className="flex justify-between items-start mb-2">
-                                                <span className="text-secondary font-bold text-sm uppercase tracking-wider">Solution {i + 1}</span>
-                                                <span className="bg-secondary/10 text-secondary text-[10px] px-2 py-0.5 rounded font-space uppercase tracking-widest">Recommended</span>
-                                            </div>
-                                            <p className="text-white text-sm mb-1">{r.action}</p>
-                                            <p className="text-white/60 text-xs mb-3 font-inter">{r.reason}</p>
-                                            {r.smm_product_boost && (
-                                                <div className="flex items-center justify-between bg-black/30 p-3 rounded-lg border border-secondary/10">
-                                                    <div className="flex items-center gap-3">
-                                                        <CheckCircle2 size={16} className="text-secondary" />
-                                                        <span className="text-white text-xs font-bold">{r.smm_product_boost}</span>
-                                                    </div>
-                                                    <button className="text-[10px] text-secondary font-bold uppercase tracking-widest hover:underline">View Product</button>
-                                                </div>
-                                            )}
+                                <p className="text-white text-sm mb-1 leading-relaxed">{r.action}</p>
+                                <p className="text-white/50 text-xs mb-4 font-inter leading-relaxed">{r.reason}</p>
+                                {r.smm_product_boost && (
+                                    <div className="flex items-center justify-between bg-black/40 p-3 rounded-xl border border-secondary/10">
+                                        <div className="flex items-center gap-3">
+                                            <CheckCircle2 size={14} className="text-secondary" />
+                                            <span className="text-white text-[10px] font-bold">{r.smm_product_boost}</span>
                                         </div>
-                                    ))}
-                                </div>
-                            </section>
-                        </div>
-
-                        <button
-                            onClick={() => setShowVastuDetails(false)}
-                            className="mt-8 w-full btn-primary py-4 uppercase tracking-[0.2em] font-bold text-xs"
-                        >
-                            Return to Design Render
-                        </button>
-                    </motion.div>
-                </motion.div>
-            )}
-        </AnimatePresence>
+                                        <button className="text-[9px] text-secondary font-bold uppercase tracking-widest hover:underline">View Product</button>
+                                    </div>
+                                )}
+                            </div>
+                        ))}
+                    </div>
+                </section>
+            </div>
+        </div>
     );
 
     return (
-        <div className={`aura-widget bg-zinc-950/80 backdrop-blur-2xl rounded-[2rem] p-6 md:p-10 border border-white/10 w-full transition-all duration-700 ${step !== 'upload' ? 'max-w-4xl mx-auto shadow-[0_32px_64px_-16px_rgba(0,0,0,0.8)]' : ''
+        <div className={`aura-widget bg-zinc-950/80 backdrop-blur-2xl rounded-[3rem] p-8 md:p-12 border border-white/10 w-full transition-all duration-700 ${step !== 'upload' ? 'max-w-6xl mx-auto shadow-[0_64px_128px_-32px_rgba(0,0,0,1)]' : 'max-w-xl mx-auto'
             } ${variant === 'floating' ? 'shadow-2xl' : ''}`}>
             <Lightbox />
-            <VastuModal />
             <BookingModal />
             <div className="flex items-center justify-between mb-6">
                 <h3 className="text-xl md:text-2xl font-playfair font-bold text-white flex items-center gap-2">
@@ -503,34 +504,38 @@ export function AuraAIWidget({ variant = 'hero' }: AuraAIWidgetProps) {
                             </div>
                         )}
 
-                        {/* Vastu Score Interaction */}
-                        <div
-                            onClick={() => setShowVastuDetails(true)}
-                            className="text-center space-y-4 bg-white/5 p-8 rounded-3xl border border-white/10 cursor-pointer hover:bg-white/10 transition-all group"
-                        >
-                            <div className="w-24 h-24 rounded-full bg-secondary/10 flex items-center justify-center mx-auto relative group-hover:scale-110 transition-transform">
-                                <Compass className="text-secondary" size={48} />
-                                <motion.div className="absolute inset-0 rounded-full border border-secondary/30"
-                                    initial={{ rotate: 0 }} animate={{ rotate: 360 }}
-                                    transition={{ duration: 10, repeat: Infinity, ease: "linear" }} />
-                            </div>
-                            <div>
-                                <h4 className="text-2xl text-white font-playfair font-bold">Vastu Compliance Score</h4>
-                                <div className="flex items-center justify-center gap-4 mt-2">
-                                    <div className="flex items-end gap-1 text-secondary">
-                                        <span className="text-5xl font-bold">{analysis.vastu_score}</span>
-                                        <span className="text-xl pb-1.5 opacity-60">/100</span>
+                        {/* Vastu Flow Down for Step 3 if Fullscreen */}
+                        {variant === 'fullscreen' ? (
+                            <VastuAnalysisFlow analysis={analysis} />
+                        ) : (
+                            <div
+                                onClick={() => setShowVastuDetails(true)}
+                                className="text-center space-y-4 bg-white/5 p-8 rounded-3xl border border-white/10 cursor-pointer hover:bg-white/10 transition-all group"
+                            >
+                                <div className="w-24 h-24 rounded-full bg-secondary/10 flex items-center justify-center mx-auto relative group-hover:scale-110 transition-transform">
+                                    <Compass className="text-secondary" size={48} />
+                                    <motion.div className="absolute inset-0 rounded-full border border-secondary/30"
+                                        initial={{ rotate: 0 }} animate={{ rotate: 360 }}
+                                        transition={{ duration: 10, repeat: Infinity, ease: "linear" }} />
+                                </div>
+                                <div>
+                                    <h4 className="text-2xl text-white font-playfair font-bold">Vastu Compliance Score</h4>
+                                    <div className="flex items-center justify-center gap-4 mt-2">
+                                        <div className="flex items-end gap-1 text-secondary">
+                                            <span className="text-5xl font-bold">{analysis.vastu_score}</span>
+                                            <span className="text-xl pb-1.5 opacity-60">/100</span>
+                                        </div>
+                                        <span className={`text-[10px] font-space uppercase tracking-[0.2em] px-4 py-1.5 rounded-full border ${analysis.status === 'Auspicious' ? 'border-green-500/50 text-green-400 bg-green-500/10' :
+                                            analysis.status === 'Neutral' ? 'border-yellow-500/50 text-yellow-400 bg-yellow-500/10' :
+                                                'border-red-500/50 text-red-400 bg-red-500/10'
+                                            }`}>{analysis.status}</span>
                                     </div>
-                                    <span className={`text-[10px] font-space uppercase tracking-[0.2em] px-4 py-1.5 rounded-full border ${analysis.status === 'Auspicious' ? 'border-green-500/50 text-green-400 bg-green-500/10' :
-                                        analysis.status === 'Neutral' ? 'border-yellow-500/50 text-yellow-400 bg-yellow-500/10' :
-                                            'border-red-500/50 text-red-400 bg-red-500/10'
-                                        }`}>{analysis.status}</span>
+                                </div>
+                                <div className="flex items-center justify-center gap-2 text-secondary text-[10px] font-space uppercase tracking-[0.2em] opacity-0 group-hover:opacity-100 transition-opacity">
+                                    View Remedial Path <ArrowRight size={12} />
                                 </div>
                             </div>
-                            <div className="flex items-center justify-center gap-2 text-secondary text-[10px] font-space uppercase tracking-[0.2em] opacity-0 group-hover:opacity-100 transition-opacity">
-                                View Remedial Path <ArrowRight size={12} />
-                            </div>
-                        </div>
+                        )}
 
                         <p className="text-white/40 text-xs text-center font-inter px-4">{analysis.summary}</p>
                         <p className="text-secondary text-[10px] text-center font-space uppercase tracking-[0.4em] font-bold animate-pulse">Scanning Designs...</p>
@@ -616,30 +621,13 @@ export function AuraAIWidget({ variant = 'hero' }: AuraAIWidgetProps) {
                             </div>
                         )}
 
-                        {/* Vastu Score Interaction */}
-                        <div
-                            onClick={() => setShowVastuDetails(true)}
-                            className="flex items-center justify-between bg-white/5 hover:bg-white/10 rounded-2xl p-5 border border-white/5 cursor-pointer transition-all group"
-                        >
-                            <div className="flex items-center gap-5">
-                                <div className="relative">
-                                    <div className="text-3xl font-bold text-secondary">{analysis.vastu_score}</div>
-                                    <div className="absolute -inset-2 border border-secondary/30 rounded-full animate-pulse" />
-                                </div>
-                                <div>
-                                    <p className="text-white text-sm font-bold tracking-tight">Vastu Compliance Score</p>
-                                    <p className={`text-[10px] font-space uppercase tracking-widest ${analysis.status === 'Auspicious' ? 'text-green-400' :
-                                        analysis.status === 'Neutral' ? 'text-yellow-400' : 'text-red-400'
-                                        }`}>{analysis.status}</p>
-                                </div>
-                            </div>
-                            <div className="flex items-center gap-2 text-secondary text-[10px] font-space uppercase tracking-widest font-bold group-hover:translate-x-1 transition-transform">
-                                Full Audit <ArrowRight size={14} />
-                            </div>
-                        </div>
+                        {/* Vastu Flow Down */}
+                        {(variant === 'fullscreen' || showVastuDetails) && (
+                            <VastuAnalysisFlow analysis={analysis} />
+                        )}
 
                         {/* Action Buttons */}
-                        <div className="grid grid-cols-2 gap-3">
+                        <div className="grid grid-cols-2 gap-4 pt-10 border-t border-white/10">
                             <button onClick={() => {
                                 trackAuraEvent('WhatsApp Share Clicked');
                                 const text = `Check out my AI-designed ${analysis.roomType} by SMM Modular Furniture! Vastu Score: ${analysis.vastu_score}/100`;
