@@ -1,11 +1,12 @@
 import { useState, useCallback, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useDropzone } from 'react-dropzone';
-import { Upload, Wand2, Compass, Download, Loader2, ArrowRight, CheckCircle2, AlertTriangle, ChevronLeft, ChevronRight, Eye, Calendar, Clock, X } from 'lucide-react';
+import { Upload, Wand2, Compass, Download, Loader2, ArrowRight, CheckCircle2, AlertTriangle, ChevronLeft, ChevronRight, Eye, Calendar, Clock, X, Send, FileText, Image as ImageIcon } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { trackAuraEvent } from '../lib/analytics';
 import { analyzeSketch, generateRenders } from '../lib/geminiService';
 import { captureLead } from '../lib/apiClient';
+import { generateAuraPDF } from '../lib/pdfService';
 import type { AnalysisResult, RenderVariation } from '../types/aura';
 
 interface AuraAIWidgetProps {
@@ -27,6 +28,15 @@ export function AuraAIWidget({ variant = 'hero' }: AuraAIWidgetProps) {
     const [activeRenderIndex, setActiveRenderIndex] = useState(0);
     const [lightboxImage, setLightboxImage] = useState<string | null>(null);
     const [showVastuDetails, setShowVastuDetails] = useState(false);
+    const [refinementPrompt, setRefinementPrompt] = useState('');
+    const [isRefining, setIsRefining] = useState(false);
+
+    const samplePhotos = [
+        { id: 1, type: 'living_room', url: 'https://images.unsplash.com/photo-1583847268964-b28dc2f51ac9?auto=format&fit=crop&q=80&w=300', label: 'Empty Living' },
+        { id: 2, type: 'bedroom', url: 'https://images.unsplash.com/photo-1595526051245-4506e0005bd0?auto=format&fit=crop&q=80&w=300', label: 'Bare Bedroom' },
+        { id: 3, type: 'kitchen', url: 'https://images.unsplash.com/photo-1556912177-c54030639a03?auto=format&fit=crop&q=80&w=300', label: 'Old Kitchen' },
+        { id: 4, type: 'entire_home', url: 'https://images.unsplash.com/photo-1574362848149-11496d93a7c7?auto=format&fit=crop&q=80&w=300', label: '2D Floorplan' },
+    ];
 
     // Booking State
     const [isBookingModalOpen, setIsBookingModalOpen] = useState(false);
@@ -91,6 +101,46 @@ export function AuraAIWidget({ variant = 'hero' }: AuraAIWidgetProps) {
             setError(err?.message || "Something went wrong. Please try again.");
             setStep('upload');
         }
+    };
+
+    const handleRefinement = async (e: React.FormEvent) => {
+        e.preventDefault();
+        if (!refinementPrompt.trim() || !uploadedBase64 || isRefining) return;
+
+        try {
+            setIsRefining(true);
+            trackAuraEvent('Refinement Requested', { prompt: refinementPrompt });
+
+            // Re-run generation with the refinement context
+            const rawBase64 = uploadedBase64.replace(/^data:image\/\w+;base64,/, '');
+            const refinedResults = await generateRenders(rawBase64, analysis!, refinementPrompt);
+
+            setRenders(prev => [...refinedResults, ...prev]); // Add new ones to top
+            setActiveRenderIndex(0);
+            setRefinementPrompt('');
+        } catch (err: any) {
+            console.error("Refinement error:", err);
+            alert("Failed to refine image. Please try a different instruction.");
+        } finally {
+            setIsRefining(false);
+        }
+    };
+
+    const handleSampleClick = (sample: any) => {
+        setUploadedImage(sample.url);
+        setUploadedBase64(sample.url); // Note: For real prod, this should fetch as base64
+        setRoomType(sample.type);
+
+        if (variant === 'hero') {
+            sessionStorage.setItem('aura_pending_image', sample.url);
+            sessionStorage.setItem('aura_pending_room', sample.type);
+            navigate('/aura-ai');
+            return;
+        }
+
+        // Mock a file for samples
+        const file = new File([], "sample.png", { type: "image/png" });
+        startAIProcess(file, sample.url, sample.type);
     };
 
     const BoundingBoxes = ({ objects, visible }: { objects: any[], visible: boolean }) => (
@@ -182,6 +232,14 @@ export function AuraAIWidget({ variant = 'hero' }: AuraAIWidgetProps) {
                 room_type: analysis.roomType
             });
 
+            // Trigger PDF Generation
+            await generateAuraPDF(
+                { name: bookingData.name, phone: bookingData.phone, email: bookingData.email },
+                uploadedBase64,
+                renders,
+                analysis
+            );
+
             setIsSuccess(true);
             setTimeout(() => {
                 setIsBookingModalOpen(false);
@@ -212,8 +270,8 @@ export function AuraAIWidget({ variant = 'hero' }: AuraAIWidgetProps) {
                     >
                         <div className="flex justify-between items-start mb-8">
                             <div>
-                                <h3 className="text-3xl font-playfair font-bold text-white">Book Design Consult</h3>
-                                <p className="text-secondary text-xs font-space uppercase tracking-[0.2em] mt-2">Send your AI Design to our Experts</p>
+                                <h3 className="text-3xl font-playfair font-bold text-white">Project Design Report</h3>
+                                <p className="text-secondary text-xs font-space uppercase tracking-[0.2em] mt-2">Unlock 4K Renders & Vastu Audit PDF</p>
                             </div>
                             <button onClick={() => setIsBookingModalOpen(false)} className="text-white/40 hover:text-white">
                                 <X size={24} />
@@ -226,8 +284,8 @@ export function AuraAIWidget({ variant = 'hero' }: AuraAIWidgetProps) {
                                     <CheckCircle2 className="text-secondary" size={40} />
                                 </div>
                                 <div>
-                                    <h4 className="text-2xl font-playfair font-bold text-white mb-2">Booking Confirmed!</h4>
-                                    <p className="text-white/60 font-inter">An SMM Modular designer will call you shortly to discuss your design.</p>
+                                    <h4 className="text-2xl font-playfair font-bold text-white mb-2">Report Generated!</h4>
+                                    <p className="text-white/60 font-inter leading-relaxed">Your high-resolution project portfolio is downloading. Our design team will contact you for a technical review.</p>
                                 </div>
                             </div>
                         ) : (
@@ -272,24 +330,17 @@ export function AuraAIWidget({ variant = 'hero' }: AuraAIWidgetProps) {
 
                                 <div className="bg-white/5 p-4 rounded-2xl border border-white/5 flex items-center gap-4 mt-2">
                                     <div className="w-12 h-12 rounded-xl overflow-hidden border border-white/10 shrink-0">
-                                        <img src={renders[activeRenderIndex]?.url} className="w-full h-full object-cover" alt="Packaged Render" />
+                                        <img src={renders[activeRenderIndex]?.url || uploadedBase64} className="w-full h-full object-cover" alt="Packaged Render" />
                                     </div>
                                     <div className="flex-1">
-                                        <p className="text-[10px] text-white/40 font-space uppercase tracking-widest">Image Package</p>
-                                        <p className="text-white font-bold text-xs">Included with your consultation</p>
+                                        <p className="text-[10px] text-white/40 font-space uppercase tracking-widest">Aura Portfolio v1.0</p>
+                                        <p className="text-white font-bold text-xs">{isSubmitting ? 'Compiling PDF...' : 'Instant Download Included'}</p>
                                     </div>
-                                    <CheckCircle2 className="text-secondary" size={20} />
+                                    {isSubmitting ? <Loader2 className="animate-spin text-secondary" size={20} /> : <CheckCircle2 className="text-secondary" size={20} />}
                                 </div>
 
-                                <button type="submit" disabled={isSubmitting}
-                                    className="w-full btn-primary py-5 mt-4 group">
-                                    {isSubmitting ? (
-                                        <Loader2 className="animate-spin" size={20} />
-                                    ) : (
-                                        <span className="flex items-center justify-center gap-2">
-                                            Package & Schedule <ArrowRight className="group-hover:translate-x-1 transition-transform" size={18} />
-                                        </span>
-                                    )}
+                                <button disabled={isSubmitting} type="submit" className="w-full bg-secondary text-primary font-space font-bold uppercase tracking-[0.2em] py-6 rounded-2xl hover:bg-white transition-all flex items-center justify-center gap-3 mt-4">
+                                    {isSubmitting ? "Processing Lead..." : "Download & Book Consult"} <ArrowRight size={18} />
                                 </button>
                             </form>
                         )}
@@ -435,6 +486,22 @@ export function AuraAIWidget({ variant = 'hero' }: AuraAIWidgetProps) {
                             </div>
                         </div>
                         <p className="text-center text-[10px] text-white/40 uppercase font-space tracking-widest">SMM Modular Furniture Design Engine</p>
+
+                        <div className="pt-4 border-t border-white/5">
+                            <label className="text-[10px] text-white/40 font-space uppercase tracking-[0.2em] mb-4 block text-center">Or Try a Sample Space</label>
+                            <div className="grid grid-cols-4 gap-3">
+                                {samplePhotos.map(sample => (
+                                    <button
+                                        key={sample.id}
+                                        onClick={() => handleSampleClick(sample)}
+                                        className="group relative aspect-square rounded-xl overflow-hidden border border-white/10 hover:border-secondary transition-all"
+                                    >
+                                        <img src={sample.url} alt={sample.label} className="w-full h-full object-cover group-hover:scale-110 transition-transform" />
+                                        <div className="absolute inset-0 bg-black/40 group-hover:bg-transparent transition-colors" />
+                                    </button>
+                                ))}
+                            </div>
+                        </div>
 
                         {error && (
                             <div className="bg-red-500/10 border border-red-500/20 rounded-2xl p-6 text-center space-y-4">
@@ -621,6 +688,31 @@ export function AuraAIWidget({ variant = 'hero' }: AuraAIWidgetProps) {
                             </div>
                         )}
 
+                        {/* Iterative Refinement Bar (ReimagineHome Style) */}
+                        <div className="py-8 space-y-4">
+                            <div className="flex items-center gap-2 text-white/40 text-[10px] font-space uppercase tracking-widest px-1">
+                                <ImageIcon size={12} />
+                                <span>Refine with SMM Design Assistant</span>
+                            </div>
+                            <form onSubmit={handleRefinement} className="relative group">
+                                <input
+                                    type="text"
+                                    value={refinementPrompt}
+                                    onChange={(e) => setRefinementPrompt(e.target.value)}
+                                    placeholder="Try: 'Make the cabinets darker' or 'Add more indirect lighting'..."
+                                    className="w-full bg-white/5 border border-white/10 rounded-2xl py-5 px-6 pr-16 text-white text-sm outline-none focus:border-secondary/50 focus:bg-white/10 transition-all shadow-lg"
+                                />
+                                <button
+                                    type="submit"
+                                    disabled={isRefining || !refinementPrompt.trim()}
+                                    className="absolute right-3 top-1/2 -translate-y-1/2 w-10 h-10 bg-secondary text-primary rounded-xl flex items-center justify-center hover:scale-110 active:scale-95 disabled:opacity-50 disabled:scale-100 transition-all font-bold"
+                                >
+                                    {isRefining ? <Loader2 size={18} className="animate-spin" /> : <Send size={18} />}
+                                </button>
+                            </form>
+                            <p className="text-[10px] text-white/30 italic text-center">Structure stays fixed: walls, windows, and ceiling lines are preserved.</p>
+                        </div>
+
                         {/* Vastu Flow Down */}
                         {(variant === 'fullscreen' || showVastuDetails) && (
                             <VastuAnalysisFlow analysis={analysis} />
@@ -628,16 +720,15 @@ export function AuraAIWidget({ variant = 'hero' }: AuraAIWidgetProps) {
 
                         {/* Action Buttons */}
                         <div className="grid grid-cols-2 gap-4 pt-10 border-t border-white/10">
+                            <button onClick={() => setIsBookingModalOpen(true)} className="flex items-center justify-center gap-3 bg-secondary text-primary font-space font-bold uppercase tracking-[0.2em] text-[10px] py-6 rounded-2xl hover:bg-white transition-all shadow-xl">
+                                <FileText size={16} /> Generate PDF Report
+                            </button>
                             <button onClick={() => {
                                 trackAuraEvent('WhatsApp Share Clicked');
                                 const text = `Check out my AI-designed ${analysis.roomType} by SMM Modular Furniture! Vastu Score: ${analysis.vastu_score}/100`;
                                 window.open(`https://wa.me/?text=${encodeURIComponent(text)}`, '_blank');
-                            }} className="btn-outline w-full text-xs py-3 flex items-center justify-center gap-2">
+                            }} className="flex items-center justify-center gap-2 border border-white/20 text-white font-space font-bold uppercase tracking-widest text-[10px] py-6 rounded-2xl hover:bg-white/5 transition-all">
                                 Share on WhatsApp
-                            </button>
-                            <button onClick={() => setIsBookingModalOpen(true)}
-                                className="btn-primary w-full text-xs py-3 flex items-center justify-center gap-2">
-                                Book Consult <ArrowRight size={14} />
                             </button>
                         </div>
                     </motion.div>
