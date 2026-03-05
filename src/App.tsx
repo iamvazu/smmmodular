@@ -14,6 +14,8 @@ import Residential from './pages/Residential';
 import Commercial from './pages/Commercial';
 import Corporate from './pages/Corporate';
 import Location from './pages/Location';
+import AuraAI from './pages/AuraAI';
+import { AuraAIFab } from './components/AuraAIFab';
 
 function App() {
     useEffect(() => {
@@ -38,6 +40,7 @@ function App() {
                 <main className="flex-grow">
                     <Routes>
                         <Route path="/" element={<Home />} />
+                        <Route path="/aura-ai" element={<AuraAI />} />
                         <Route path="/services" element={<Services />} />
                         <Route path="/our-factory" element={<OurFactory />} />
                         <Route path="/residential" element={<Residential />} />
@@ -45,6 +48,7 @@ function App() {
                         <Route path="/corporate" element={<Corporate />} />
                         <Route path="/location/:locationSlug" element={<Location />} />
                     </Routes>
+                    <AuraAIFab />
                 </main>
                 <Footer />
             </div>

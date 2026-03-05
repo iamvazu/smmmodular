@@ -22,6 +22,7 @@ const Navbar = () => {
 
     const navLinks = [
         { name: 'Home', path: '/' },
+        { name: 'Aura AI ✨', path: '/aura-ai', isAura: true },
         { name: 'Services', path: '/services' },
         { name: 'Our Factory', path: '/our-factory' },
         { name: 'Residential', path: '/residential' },
@@ -47,7 +48,7 @@ const Navbar = () => {
                         <Link
                             key={link.path}
                             to={link.path}
-                            className={`font-space text-[10px] 2xl:text-[11px] font-bold uppercase tracking-[0.2em] transition-all duration-300 relative group shrink-0 ${location.pathname === link.path ? 'text-secondary' : 'text-white/70 hover:text-white'}`}
+                            className={`font-space text-[10px] 2xl:text-[11px] font-bold uppercase tracking-[0.2em] transition-all duration-300 relative group shrink-0 ${location.pathname === link.path ? 'text-secondary' : (link.isAura ? 'text-secondary animate-pulse hover:text-white' : 'text-white/70 hover:text-white')}`}
                         >
                             {link.name}
                             <span className={`absolute -bottom-2 left-0 h-[1px] bg-secondary transition-all duration-300 ${location.pathname === link.path ? 'w-full' : 'w-0 group-hover:w-full'}`}></span>
@@ -93,7 +94,8 @@ const Navbar = () => {
                             <Link
                                 key={link.path}
                                 to={link.path}
-                                className={`font-playfair text-3xl ${location.pathname === link.path ? 'text-secondary' : 'text-white'}`}
+                                onClick={() => setIsMobileMenuOpen(false)}
+                                className={`font-playfair text-3xl ${location.pathname === link.path ? 'text-secondary' : (link.isAura ? 'text-secondary animate-pulse' : 'text-white')}`}
                             >
                                 {link.name}
                             </Link>

@@ -1,0 +1,20 @@
+{
+    "name": "SMM Aura AI - Interior Design",
+    "short_name": "Aura AI",
+    "start_url": "/aura-ai",
+    "display": "standalone",
+    "background_color": "#1a1a1a",
+    "theme_color": "#D4AF37",
+    "icons": [
+        {
+            "src": "/favicon.ico",
+            "sizes": "64x64",
+            "type": "image/x-icon"
+        },
+        {
+            "src": "/images/SMM-Logo.png",
+            "sizes": "512x512",
+            "type": "image/png"
+        }
+    ]
+}

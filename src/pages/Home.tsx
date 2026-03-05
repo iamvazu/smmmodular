@@ -1,8 +1,11 @@
 import { useRef } from 'react';
 import { motion, useScroll, useTransform } from 'framer-motion';
-import { ArrowRight, CheckCircle2, Factory, Palette, Clock, ShieldCheck, Star, Users, MapPin } from 'lucide-react';
+import { ArrowRight, CheckCircle2, Factory, Palette, Clock, ShieldCheck, Home as HomeIcon, Wand2, Compass, Star, Users } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { SEO } from '../components/SEO';
+import { AuraAIWidget } from '../components/AuraAIWidget';
+import { StatCounter } from '../components/StatCounter';
+import { AIGallery } from '../components/AIGallery';
 
 const Home = () => {
     const heroRef = useRef(null);
@@ -15,10 +18,10 @@ const Home = () => {
     const heroTextOpacity = useTransform(scrollYProgress, [0, 0.5], [1, 0]);
 
     const stats = [
-        { label: "Years of Excellence", value: "20+", icon: <Star className="text-secondary" /> },
-        { label: "Projects Delivered", value: "5000+", icon: <CheckCircle2 className="text-secondary" /> },
-        { label: "Cities Across India", value: "10+", icon: <MapPin className="text-secondary" /> },
-        { label: "Warranty Promise", value: "15-Yrs", icon: <ShieldCheck className="text-secondary" /> },
+        { label: "Happy Homes", value: 5000, suffix: "+", icon: <HomeIcon className="text-secondary" />, isNew: false },
+        { label: "AI Designs Generated", value: 15000, suffix: "+", icon: <Wand2 className="text-secondary" />, isNew: true },
+        { label: "Vastu Compliance", value: 98, suffix: "%", icon: <Compass className="text-secondary" />, isNew: true },
+        { label: "Day Delivery", value: 45, suffix: "", icon: <Clock className="text-secondary" />, isNew: false },
     ];
 
     const features = [
@@ -29,11 +32,12 @@ const Home = () => {
     ];
 
     const processSteps = [
-        { num: "01", title: "Consultation", desc: "Share your vision with our expert designers" },
-        { num: "02", title: "3D Design", desc: "Experience your space in photorealistic 3D" },
-        { num: "03", title: "Production", desc: "Watch your furniture come alive in our factory" },
-        { num: "04", title: "Execution", desc: "Professional installation with precision" },
-        { num: "05", title: "Handover", desc: "Move into your dream home in 45 days" },
+        { num: "01", title: "Upload & AI", desc: "Draft vision instantly with Aura AI" },
+        { num: "02", title: "Consultation", desc: "Refine concepts with expert designers" },
+        { num: "03", title: "3D Design", desc: "Experience your space in architecture 3D" },
+        { num: "04", title: "Production", desc: "Built with BIESSE precision in our factory" },
+        { num: "05", title: "Execution", desc: "Professional installation with our team" },
+        { num: "06", title: "Handover", desc: "Move into your dream home in 45 days" },
     ];
 
     const localBusinessSchema = {
@@ -59,54 +63,58 @@ const Home = () => {
                 schema={[localBusinessSchema]}
             />
             {/* Hero Section */}
-            <section ref={heroRef} className="relative min-h-[100dvh] flex flex-col lg:flex-row overflow-hidden bg-primary">
-                {/* Visual Area (Image) */}
-                <div className="relative w-full lg:w-7/12 h-[45vh] lg:h-auto min-h-[350px] overflow-hidden order-1 lg:order-1 lg:clip-path-slant">
-                    <motion.div style={{ y: heroImageY }} className="absolute inset-0">
-                        <img
-                            src="images/services/residential-projects/img(18).webp"
-                            alt="Luxury Living Room"
-                            className="w-full h-full object-cover"
-                        />
-                        <div className="absolute inset-0 bg-primary/20 lg:bg-transparent"></div>
-                    </motion.div>
+            <section ref={heroRef} className="relative min-h-[100dvh] flex flex-col lg:flex-row overflow-hidden bg-primary items-center py-24 md:py-0">
+                {/* Background Image Layer */}
+                <div className="absolute inset-0 z-0">
+                    <img
+                        src="images/services/residential-projects/img(18).webp"
+                        alt="Luxury Living Room"
+                        className="w-full h-full object-cover opacity-10"
+                    />
+                    <div className="absolute inset-0 bg-gradient-to-r from-primary via-primary/95 to-primary/40"></div>
                 </div>
 
                 {/* Content Area */}
-                <div className="w-full lg:w-5/12 min-h-[55vh] lg:min-h-screen bg-primary flex items-center p-6 sm:p-12 xl:p-20 relative z-10 order-2 lg:order-2">
+                <div className="w-full lg:w-1/2 min-h-[55vh] lg:min-h-screen flex items-center p-6 sm:p-12 xl:p-20 relative z-10 order-2 lg:order-1">
                     <motion.div
                         initial={{ opacity: 0, y: 30 }}
-                        whileInView={{ opacity: 1, y: 0 }}
-                        viewport={{ once: true }}
+                        animate={{ opacity: 1, y: 0 }}
                         transition={{ duration: 1, delay: 0.2 }}
                         className="space-y-6 md:space-y-10 w-full"
                     >
-                        <div className="w-16 h-1 bg-secondary mb-6 md:mb-10"></div>
-                        <h1 className="text-3xl sm:text-4xl md:text-5xl xl:text-7xl font-playfair font-bold text-white leading-[1.15]">
-                            Crafting Timeless Spaces, <span className="text-secondary italic font-normal">One Module</span> at a Time.
+                        <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-secondary/10 border border-secondary/20 text-secondary text-[10px] md:text-xs font-space uppercase tracking-widest font-bold">
+                            <Star size={14} className="fill-secondary" /> Introducing Aura AI
+                        </div>
+                        <h1 className="text-4xl sm:text-5xl md:text-6xl xl:text-7xl font-playfair font-bold text-white leading-[1.1]">
+                            See Your Dream <br />
+                            Home <span className="text-secondary italic font-normal">Before</span> <br />
+                            It's Built.
                         </h1>
                         <p className="text-white/60 font-inter text-sm md:text-lg max-w-xl leading-relaxed">
-                            Bangalore's Premier Modular Furniture & Interior Design Studio. 20+ years of transforming aspirations into exquisite living realities.
+                            Upload a sketch, photo, or floor plan. Get a photorealistic 3D render with SMM furniture in 30 seconds.
                         </p>
 
                         <div className="flex flex-col sm:flex-row gap-4 pt-4">
-                            <button className="btn-primary w-full sm:w-auto">
-                                Book Free Consultation
+                            <Link to="/aura-ai" className="btn-primary w-full sm:w-auto text-center">
+                                Explore Aura AI
                                 <ArrowRight size={18} className="group-hover:translate-x-2 transition-transform" />
-                            </button>
-                            <button className="btn-outline w-full sm:w-auto">Explore Our Work</button>
+                            </Link>
+                            <a href="tel:+917624997792" className="btn-outline border-white/20 hover:border-white w-full sm:w-auto text-center">
+                                Book Free Consult
+                            </a>
                         </div>
+                    </motion.div>
+                </div>
 
-                        <div className="pt-8 md:pt-12 flex flex-wrap gap-8 md:gap-12 border-t border-white/5">
-                            <div>
-                                <p className="text-2xl md:text-3xl font-bold text-secondary font-playfair tracking-tighter">5000+</p>
-                                <p className="text-[9px] md:text-[10px] uppercase tracking-[0.2em] font-space text-white/40 font-bold">Happy Homes</p>
-                            </div>
-                            <div>
-                                <p className="text-2xl md:text-3xl font-bold text-secondary font-playfair tracking-tighter">15-Year</p>
-                                <p className="text-[9px] md:text-[10px] uppercase tracking-[0.2em] font-space text-white/40 font-bold">Warranty</p>
-                            </div>
-                        </div>
+                {/* AI Widget Area */}
+                <div className="w-full lg:w-1/2 flex items-center justify-center p-6 sm:p-12 xl:p-20 relative z-10 order-1 lg:order-2">
+                    <motion.div
+                        initial={{ opacity: 0, scale: 0.95 }}
+                        animate={{ opacity: 1, scale: 1 }}
+                        transition={{ duration: 0.8, delay: 0.4 }}
+                        className="w-full max-w-lg"
+                    >
+                        <AuraAIWidget variant="hero" />
                     </motion.div>
                 </div>
             </section>
@@ -116,26 +124,21 @@ const Home = () => {
                 <div className="container-custom">
                     <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8 md:gap-12">
                         {stats.map((stat, i) => (
-                            <motion.div
+                            <StatCounter
                                 key={i}
-                                initial={{ opacity: 0, y: 20 }}
-                                whileInView={{ opacity: 1, y: 0 }}
-                                viewport={{ once: true }}
-                                transition={{ delay: i * 0.1 }}
-                                className="flex items-center space-x-5"
-                            >
-                                <div className="p-4 bg-white rounded-2xl shadow-sm text-secondary">
-                                    {stat.icon}
-                                </div>
-                                <div>
-                                    <h3 className="text-2xl md:text-3xl font-playfair font-bold text-primary tabular-nums">{stat.value}</h3>
-                                    <p className="text-[10px] md:text-xs uppercase tracking-widest text-darkGray/50 font-space font-bold">{stat.label}</p>
-                                </div>
-                            </motion.div>
+                                value={stat.value as number}
+                                label={stat.label}
+                                suffix={stat.suffix}
+                                icon={stat.icon}
+                                isNew={stat.isNew}
+                            />
                         ))}
                     </div>
                 </div>
             </section>
+
+            {/* AI Gallery */}
+            <AIGallery />
 
             {/* The SMM Difference */}
             <section className="section-padding overflow-hidden bg-white">
@@ -188,7 +191,7 @@ const Home = () => {
                         <div className="w-20 h-1 bg-secondary mx-auto"></div>
                     </div>
 
-                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-8 lg:gap-0 lg:border-t lg:border-white/10">
+                    <div className="grid grid-cols-2 lg:grid-cols-6 gap-4 lg:gap-0 lg:border-t lg:border-white/10">
                         {processSteps.map((step, i) => (
                             <motion.div
                                 key={i}
