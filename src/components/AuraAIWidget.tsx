@@ -27,9 +27,9 @@ export function AuraAIWidget({ variant = 'hero' }: AuraAIWidgetProps) {
         try {
             setError(null);
             setStep('analyzing');
-            setStatusMessage('Gemini 1.5 Pro is analyzing your layout...');
+            setStatusMessage('Scanning Spatial Topology...');
 
-            // Strip the data URL prefix to get raw base64
+            // Strip the data URL prefix
             const rawBase64 = base64Data.replace(/^data:image\/\w+;base64,/, '');
 
             // 1. Spatial + Vastu Analysis
@@ -40,11 +40,11 @@ export function AuraAIWidget({ variant = 'hero' }: AuraAIWidgetProps) {
             trackAuraEvent('Vastu Analysis Viewed', { score: analysisResult.vastu_score, violations_count: analysisResult.violations?.length || 0 });
 
             // Brief pause for user to see the Vastu score
-            await new Promise(r => setTimeout(r, 3000));
+            await new Promise(r => setTimeout(r, 4000));
 
             // 2. Generate Render Variations
             setStep('rendering');
-            setStatusMessage('Generating photorealistic renders (this may take 1-2 minutes)...');
+            setStatusMessage('Synthesizing Architectural Variations...');
             const renderResults = await generateRenders(rawBase64, analysisResult);
             setRenders(renderResults);
             setStep('result');
@@ -56,6 +56,30 @@ export function AuraAIWidget({ variant = 'hero' }: AuraAIWidgetProps) {
             setStep('upload');
         }
     };
+
+    const BoundingBoxes = ({ objects, visible }: { objects: any[], visible: boolean }) => (
+        <AnimatePresence>
+            {visible && objects.map((obj, i) => {
+                const [ymin, xmin, ymax, xmax] = obj.bbox;
+                return (
+                    <motion.div key={i}
+                        initial={{ opacity: 0, scale: 0.8 }}
+                        animate={{ opacity: 1, scale: 1 }}
+                        className="absolute border-2 border-secondary bg-secondary/10 flex items-center justify-center"
+                        style={{
+                            top: `${ymin / 10}%`,
+                            left: `${xmin / 10}%`,
+                            width: `${(xmax - xmin) / 10}%`,
+                            height: `${(ymax - ymin) / 10}%`,
+                        }}>
+                        <div className="bg-secondary text-primary text-[6px] font-bold px-1 uppercase whitespace-nowrap -top-3 absolute">
+                            {obj.object}
+                        </div>
+                    </motion.div>
+                );
+            })}
+        </AnimatePresence>
+    );
 
     const onDrop = useCallback((acceptedFiles: File[]) => {
         if (acceptedFiles.length > 0) {
@@ -173,6 +197,10 @@ export function AuraAIWidget({ variant = 'hero' }: AuraAIWidgetProps) {
                         {uploadedImage && (
                             <div className="relative aspect-[16/9] rounded-xl overflow-hidden border border-secondary/30">
                                 <img src={uploadedImage} alt="Your upload" className="w-full h-full object-contain bg-black/50" />
+                                <BoundingBoxes objects={analysis.objects} visible={true} />
+                                <div className="absolute top-2 left-2 bg-secondary/90 text-primary text-[10px] font-space uppercase tracking-widest px-2 py-1 rounded-full font-bold">
+                                    Sketch Mapping
+                                </div>
                             </div>
                         )}
 
@@ -190,8 +218,8 @@ export function AuraAIWidget({ variant = 'hero' }: AuraAIWidgetProps) {
                                 <span className="text-lg pb-1">/ 100</span>
                             </div>
                             <span className={`inline-block text-xs font-space uppercase tracking-widest px-4 py-1.5 rounded-full ${analysis.status === 'Auspicious' ? 'bg-green-400/20 text-green-400' :
-                                    analysis.status === 'Neutral' ? 'bg-yellow-400/20 text-yellow-400' :
-                                        'bg-red-400/20 text-red-400'
+                                analysis.status === 'Neutral' ? 'bg-yellow-400/20 text-yellow-400' :
+                                    'bg-red-400/20 text-red-400'
                                 }`}>{analysis.status}</span>
                         </div>
 
@@ -256,8 +284,9 @@ export function AuraAIWidget({ variant = 'hero' }: AuraAIWidgetProps) {
                             {/* Original Upload */}
                             <div className="relative aspect-[4/3] rounded-xl overflow-hidden border border-white/10">
                                 <img src={uploadedImage || ''} alt="Original" className="w-full h-full object-contain bg-black/50" />
+                                <BoundingBoxes objects={analysis.objects} visible={true} />
                                 <div className="absolute top-2 left-2 bg-white/20 backdrop-blur-sm text-white text-[10px] font-space uppercase tracking-widest px-2 py-1 rounded-full">
-                                    Before
+                                    Sketch Mapping
                                 </div>
                             </div>
 
@@ -297,7 +326,7 @@ export function AuraAIWidget({ variant = 'hero' }: AuraAIWidgetProps) {
                                 <div>
                                     <p className="text-white text-xs font-bold">Vastu Score</p>
                                     <p className={`text-[10px] font-space uppercase ${analysis.status === 'Auspicious' ? 'text-green-400' :
-                                            analysis.status === 'Neutral' ? 'text-yellow-400' : 'text-red-400'
+                                        analysis.status === 'Neutral' ? 'text-yellow-400' : 'text-red-400'
                                         }`}>{analysis.status}</p>
                                 </div>
                             </div>

@@ -1,4 +1,5 @@
 import { GoogleGenAI, Type } from "@google/genai";
+import { GoogleGenAI, Type } from "@google/genai";
 import type { AnalysisResult, RenderVariation } from "../types/aura";
 
 const API_KEY = import.meta.env.VITE_GEMINI_API_KEY || "AIzaSyBAL-yJ0kP0ttS-KfxG4HiBf4P9-3JAXto";
@@ -33,28 +34,23 @@ async function withRetry<T>(fn: () => Promise<T>, isImage: boolean = false, retr
     }
 }
 
-const VASTU_GUIDE = `You are the "Vastu Shastra Consultant" for SMM Modular Furniture (South India's premium modular interior brand with 20+ years experience).
+const VASTU_GUIDE = `You are the "Vastu Shastra Consultant" for SMM Modular Furniture.
 
 CORE VASTU KNOWLEDGE:
-1. Living Room: Ideally North/East. Heavy furniture (sofa, TV unit) in South/West. Occupants face North/East. Electronics in South-East. Keep North-East light and clutter-free.
-2. Master Bedroom: Ideally South-West. Headboard against South/West wall. Never head facing North. No bed under beams. Mirrors must NOT reflect the bed.
-3. Kitchen: Best in South-East (Agni corner). Cook should face East. Keep water (sink) and fire (stove) separate. 
-4. Pooja Room: Best in North-East. Should be separate from bedroom.
-5. Dining: Best in West or North-West direction.
-6. Entrance: Best facing East or North for prosperity.
+1. Living Room: Ideally North/East. Heavy furniture (sofa, TV unit) in South/West.
+2. Master Bedroom: Ideally South-West. Headboard against South/West wall.
+3. Kitchen: Best in South-East (Agni corner). Cook should face East.
 
 PROTOCOL:
 - Evaluate every detected element against Vastu rules.
 - Generate a Compliance Score (1-100).
-- Use "Correction" instead of "Bad".
-- Suggest SMM Modular product recommendations in 'smm_product_boost' to fix violations (e.g., "SMM Marine Ply Modular Wardrobe", "SMM Teak Wood TV Unit").`;
+- Suggest SMM Modular products in 'smm_product_boost'.`;
 
-const SPATIAL_ANALYZER = `You are the Lead Virtual Architect for SMM Modular Furniture.
-Analyze the uploaded floor plan, sketch, or room photo:
-- Detect walls, windows, doors, furniture, and room boundaries.
-- Identify the room type (living_room, bedroom, kitchen, entire_home, etc).
-- Estimate room dimensions using standard door width (3ft) as reference.
-- Provide a detailed layout analysis summary.`;
+const SPATIAL_ANALYZER = `You are "Aura AI," scanning spatial topology for SMM Modular Furniture.
+Analyze the user sketch/image and extract spatial coordinates.
+- Detect walls, windows, doors, and furniture.
+- Categorize objects with bounding boxes [ymin, xmin, ymax, xmax].
+- Determine the 'roomType'.`;
 
 /**
  * Combined Spatial + Vastu analysis using Gemini
@@ -72,7 +68,7 @@ export const analyzeSketch = async (
     The user selected room type: "${roomType}".`;
 
     const response = await withRetry(() => ai.models.generateContent({
-        model: "gemini-1.5-flash",
+        model: "gemini-3.1-flash-lite-preview",
         contents: {
             parts: [
                 { inlineData: { mimeType: "image/jpeg", data: base64Image } },
@@ -179,7 +175,7 @@ export const generateRenders = async (
             console.log(`Generating render variation ${i + 1}/${variations.length}: ${v.name}...`);
 
             const response = await withRetry(() => ai.models.generateContent({
-                model: 'gemini-2.0-flash-exp',
+                model: 'gemini-3.1-flash-image-preview',
                 contents: {
                     parts: [
                         { inlineData: { mimeType: 'image/jpeg', data: sketchBase64 } },
