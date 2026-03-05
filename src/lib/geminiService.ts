@@ -39,17 +39,20 @@ CORE VASTU KNOWLEDGE:
 1. Living Room: Ideally North/East. Heavy furniture (sofa, TV unit) in South/West.
 2. Master Bedroom: Ideally South-West. Headboard against South/West wall.
 3. Kitchen: Best in South-East (Agni corner). Cook should face East.
+4. Pooja: North-East, East or North.
 
-PROTOCOL:
-- Evaluate every detected element against Vastu rules.
-- Generate a Compliance Score (1-100).
-- Suggest SMM Modular products in 'smm_product_boost'.`;
+VASTU LOCK PROTOCOL:
+- IF "Preserve Vastu Structure" is enabled: NEVER suggest moving walls/doors. Instead, suggest furniture placement corrections.
+- ALWAYS identify the cardinal directions automatically from the floor plan layout.
+- Provide a Compliance Score (1-100).`;
 
 const SPATIAL_ANALYZER = `You are "Aura AI," scanning spatial topology for SMM Modular Furniture.
 Analyze the user sketch/image and extract spatial coordinates.
 - Detect walls, windows, doors, and furniture.
 - Categorize objects with bounding boxes [ymin, xmin, ymax, xmax].
-- Determine the 'roomType'.`;
+- Strictly map detected objects to SMM's Modular categories.
+- ESTIMATE PRICE: Provide a realistic INR estimate based on typical Indian modular furniture rates for the detected complexity.
+- EMI: Calculate a monthly 12-month EMI estimate (Price / 12).`;
 
 /**
  * Combined Spatial + Vastu analysis using Gemini
@@ -129,9 +132,22 @@ export const analyzeSketch = async (
                     },
                     summary: { type: Type.STRING },
                     roomType: { type: Type.STRING },
-                    layoutAnalysis: { type: Type.STRING }
+                    layoutAnalysis: { type: Type.STRING },
+                    estimated_price: { type: Type.NUMBER },
+                    emi_estimate: { type: Type.NUMBER },
+                    flags: {
+                        type: Type.ARRAY,
+                        items: {
+                            type: Type.OBJECT,
+                            properties: {
+                                category: { type: Type.STRING, enum: ['Vastu', 'Space', 'Style', 'Budget', 'Delivery'] },
+                                status: { type: Type.STRING, enum: ['Good', 'Warning', 'Info'] },
+                                text: { type: Type.STRING }
+                            }
+                        }
+                    }
                 },
-                required: ["objects", "vastu_score", "status", "violations", "remedies", "summary", "roomType"]
+                required: ["objects", "vastu_score", "status", "violations", "remedies", "summary", "roomType", "estimated_price", "emi_estimate", "flags"]
             }
         }
     }), false);

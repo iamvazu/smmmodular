@@ -22,6 +22,12 @@ export interface ArchitecturalElement {
     bbox: number[];
 }
 
+export interface DesignFlag {
+    category: 'Vastu' | 'Space' | 'Style' | 'Budget' | 'Delivery';
+    status: 'Good' | 'Warning' | 'Info';
+    text: string;
+}
+
 export interface AnalysisResult {
     objects: DetectedObject[];
     architecture?: ArchitecturalElement[];
@@ -32,6 +38,9 @@ export interface AnalysisResult {
     summary: string;
     roomType: string;
     layoutAnalysis?: string;
+    estimated_price?: number;
+    emi_estimate?: number;
+    flags?: DesignFlag[];
 }
 
 export interface RenderVariation {

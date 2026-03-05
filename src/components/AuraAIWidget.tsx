@@ -28,6 +28,9 @@ export function AuraAIWidget({ variant = 'hero' }: AuraAIWidgetProps) {
     const [activeRenderIndex, setActiveRenderIndex] = useState(0);
     const [lightboxImage, setLightboxImage] = useState<string | null>(null);
     const [showVastuDetails, setShowVastuDetails] = useState(false);
+    const [vastuLock, setVastuLock] = useState(true);
+    const [selectedStyle, setSelectedStyle] = useState('modern');
+    const [selectedLighting, setSelectedLighting] = useState('morning');
     const [refinementPrompt, setRefinementPrompt] = useState('');
     const [isRefining, setIsRefining] = useState(false);
 
@@ -75,30 +78,35 @@ export function AuraAIWidget({ variant = 'hero' }: AuraAIWidgetProps) {
             setStep('analyzing');
             setStatusMessage('Scanning Spatial Topology...');
 
-            // Strip the data URL prefix
             const rawBase64 = base64Data.replace(/^data:image\/\w+;base64,/, '');
 
             // 1. Spatial + Vastu Analysis
-            trackAuraEvent('Sketch Uploaded', { room_type: selectedRoomType, file_size: file.size, file_type: file.type });
-            const analysisResult = await analyzeSketch(rawBase64, selectedRoomType);
-            setAnalysis(analysisResult);
-            setStep('vastu');
-            trackAuraEvent('Vastu Analysis Viewed', { score: analysisResult.vastu_score, violations_count: analysisResult.violations?.length || 0 });
+            trackAuraEvent('Sketch Uploaded', {
+                room_type: selectedRoomType,
+                style: selectedStyle,
+                vastu_lock: vastuLock
+            });
 
-            // Brief pause for user to see the Vastu score
+            // Pass Vastu Lock logic in user prompt
+            const extraPrompt = `${vastuLock ? "PRESERVE VASTU STRUCTURE: Do not move walls or doors." : ""} Theme: ${selectedStyle}. Lighting: ${selectedLighting}.`;
+            const analysisResult = await analyzeSketch(rawBase64, selectedRoomType, extraPrompt);
+            setAnalysis(analysisResult);
+
+            setStep('vastu');
+            trackAuraEvent('Vastu Analysis Viewed', { score: analysisResult.vastu_score });
+
+            // Pause for analysis read
             await new Promise(r => setTimeout(r, 4000));
 
             // 2. Generate Render Variations
             setStep('rendering');
             setStatusMessage('Synthesizing Architectural Variations...');
-            const renderResults = await generateRenders(rawBase64, analysisResult);
+            const renderResults = await generateRenders(rawBase64, analysisResult, extraPrompt);
             setRenders(renderResults);
             setStep('result');
-            trackAuraEvent('Render Generated', { variations_count: renderResults.length });
-
         } catch (err: any) {
             console.error("AI processing error:", err);
-            setError(err?.message || "Something went wrong. Please try again.");
+            setError(err?.message || "Service Temporarily Unavailable");
             setStep('upload');
         }
     };
@@ -482,42 +490,83 @@ export function AuraAIWidget({ variant = 'hero' }: AuraAIWidgetProps) {
             <AnimatePresence mode="wait">
                 {/* === STEP 1: UPLOAD === */}
                 {step === 'upload' && (
-                    <motion.div key="upload" initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, scale: 0.95 }} className="space-y-6">
-                        <div className="flex flex-col gap-2">
-                            <label className="text-xs text-white/70 font-space uppercase tracking-widest">Select Room Type</label>
-                            <select value={roomType} onChange={(e) => setRoomType(e.target.value)}
-                                className="bg-primary/50 text-white border border-secondary/30 rounded-lg p-3 outline-none focus:border-secondary transition-colors"
-                                style={{ appearance: 'none' }}>
-                                <option value="living_room">Living Room</option>
-                                <option value="bedroom">Master Bedroom</option>
-                                <option value="kitchen">Modular Kitchen</option>
-                                <option value="office">Home Office</option>
-                                <option value="entire_home">2D Floor Plan (Entire Home)</option>
-                            </select>
+                    <motion.div key="upload" initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, scale: 0.95 }} className="space-y-8">
+                        <div className="text-center space-y-2 mb-8">
+                            <h2 className="text-3xl md:text-5xl font-playfair font-bold text-white">See Your Dream Home in 30 Seconds</h2>
+                            <p className="text-secondary/60 font-space uppercase tracking-[0.2em] text-[10px]">Instant AI Design • Vastu Audit • SMM Catalog Integration</p>
                         </div>
 
+                        {/* Drop Zone */}
                         <div {...getRootProps()}
-                            className={`border-2 border-dashed ${isDragActive ? 'border-secondary bg-secondary/10' : 'border-secondary/50 bg-primary/30 hover:border-secondary hover:bg-primary/50'} rounded-xl p-8 md:p-12 text-center cursor-pointer transition-all duration-300 flex flex-col items-center justify-center gap-4`}>
+                            className={`border-2 border-dashed ${isDragActive ? 'border-secondary bg-secondary/10' : 'border-white/10 bg-white/5 hover:border-secondary/50 hover:bg-white/10'} rounded-[2rem] p-10 md:p-16 text-center cursor-pointer transition-all duration-300 flex flex-col items-center justify-center gap-6 group shadow-2xl`}>
                             <input {...getInputProps()} />
-                            <div className="w-16 h-16 rounded-full bg-secondary/20 flex items-center justify-center text-secondary">
-                                <Upload size={32} />
+                            <div className="w-20 h-20 rounded-3xl bg-secondary/20 flex items-center justify-center text-secondary group-hover:scale-110 transition-transform">
+                                <Upload size={40} />
                             </div>
-                            <div>
-                                <p className="text-white font-inter text-lg">Drop your sketch or floor plan</p>
-                                <p className="text-white/50 text-sm mt-1">or click to browse (JPG, PNG, WebP)</p>
+                            <div className="space-y-2">
+                                <p className="text-white font-playfair text-2xl font-bold">Upload sketch, photo, or plan</p>
+                                <p className="text-white/40 text-sm font-inter">JPG • PNG • WebP • Multiple Rooms Supported</p>
                             </div>
                         </div>
-                        <p className="text-center text-[10px] text-white/40 uppercase font-space tracking-widest">SMM Modular Furniture Design Engine</p>
 
-                        <div className="pt-4 border-t border-white/5">
-                            <label className="text-[10px] text-white/40 font-space uppercase tracking-[0.2em] mb-4 block text-center">Or Try a Sample Space</label>
-                            <div className="grid grid-cols-4 gap-3">
+                        {/* Pre-Processing Selectors */}
+                        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                            <div className="space-y-2">
+                                <label className="text-[10px] text-white/40 font-space uppercase tracking-widest ml-1">Room Type</label>
+                                <select value={roomType} onChange={(e) => setRoomType(e.target.value)}
+                                    className="w-full bg-white/5 text-white border border-white/10 rounded-2xl p-4 outline-none focus:border-secondary transition-all cursor-pointer">
+                                    <option value="living_room">Living Room</option>
+                                    <option value="bedroom">Master Bedroom</option>
+                                    <option value="kitchen">Modular Kitchen</option>
+                                    <option value="entire_home">Full Floor Plan</option>
+                                </select>
+                            </div>
+                            <div className="space-y-2">
+                                <label className="text-[10px] text-white/40 font-space uppercase tracking-widest ml-1">Design Style</label>
+                                <select value={selectedStyle} onChange={(e) => setSelectedStyle(e.target.value)}
+                                    className="w-full bg-white/5 text-white border border-white/10 rounded-2xl p-4 outline-none focus:border-secondary transition-all cursor-pointer">
+                                    <option value="modern">Modern Luxury</option>
+                                    <option value="indian">Contemporary Indian</option>
+                                    <option value="scandi">Scandinavian</option>
+                                    <option value="minimal">Minimalist</option>
+                                </select>
+                            </div>
+                            <div className="space-y-2">
+                                <label className="text-[10px] text-white/40 font-space uppercase tracking-widest ml-1">Vastu Mode</label>
+                                <button
+                                    onClick={() => setVastuLock(!vastuLock)}
+                                    className={`w-full flex items-center justify-between border rounded-2xl p-4 transition-all ${vastuLock ? 'border-secondary/50 bg-secondary/10 text-secondary' : 'border-white/10 bg-white/5 text-white/50'}`}
+                                >
+                                    <span className="font-bold text-xs">Vastu Lock</span>
+                                    {vastuLock ? <CheckCircle2 size={16} /> : <div className="w-4 h-4 rounded-full border border-white/20" />}
+                                </button>
+                            </div>
+                        </div>
+
+                        <div className="flex items-center justify-between pt-8 border-t border-white/5">
+                            <div className="flex gap-4">
+                                <div className="text-center">
+                                    <p className="text-xl font-bold text-white">2,500+</p>
+                                    <p className="text-[8px] text-white/40 uppercase tracking-widest">Designs Sent</p>
+                                </div>
+                                <div className="w-px h-8 bg-white/10" />
+                                <div className="text-center">
+                                    <p className="text-xl font-bold text-white">15 Min</p>
+                                    <p className="text-[8px] text-white/40 uppercase tracking-widest">Expert Delivery</p>
+                                </div>
+                            </div>
+                            <div className="text-right">
+                                <p className="text-[10px] text-secondary font-bold font-space uppercase tracking-widest">First 3 Designs Free</p>
+                                <p className="text-[9px] text-white/40">No credit card required</p>
+                            </div>
+                        </div>
+
+                        <div className="pt-4">
+                            <label className="text-[10px] text-white/40 font-space uppercase tracking-[0.2em] mb-4 block text-center">Or Try a Sample Asset</label>
+                            <div className="grid grid-cols-5 gap-3">
                                 {samplePhotos.map(sample => (
-                                    <button
-                                        key={sample.id}
-                                        onClick={() => handleSampleClick(sample)}
-                                        className="group relative aspect-square rounded-xl overflow-hidden border border-white/10 hover:border-secondary transition-all"
-                                    >
+                                    <button key={sample.id} onClick={() => handleSampleClick(sample)}
+                                        className="group relative aspect-square rounded-2xl overflow-hidden border border-white/10 hover:border-secondary transition-all">
                                         <img src={sample.url} alt={sample.label} className="w-full h-full object-cover group-hover:scale-110 transition-transform" />
                                         <div className="absolute inset-0 bg-black/40 group-hover:bg-transparent transition-colors" />
                                     </button>
@@ -528,14 +577,7 @@ export function AuraAIWidget({ variant = 'hero' }: AuraAIWidgetProps) {
                         {error && (
                             <div className="bg-red-500/10 border border-red-500/20 rounded-2xl p-6 text-center space-y-4">
                                 <AlertTriangle className="text-red-500 mx-auto" size={32} />
-                                <div>
-                                    <h4 className="text-white font-bold mb-1">Service Temporarily Unavailable</h4>
-                                    <p className="text-white/60 text-xs font-inter leading-relaxed">
-                                        {error.includes("API key") || error.includes("403") || error.includes("400")
-                                            ? "Our AI engine is currently undergoing maintenance. Please try again in 5 minutes."
-                                            : error}
-                                    </p>
-                                </div>
+                                <p className="text-red-400 text-sm">{error}</p>
                                 <button onClick={resetProcess} className="btn-primary py-3 px-8 text-[10px]">Try Again</button>
                             </div>
                         )}
@@ -578,56 +620,65 @@ export function AuraAIWidget({ variant = 'hero' }: AuraAIWidgetProps) {
                 {/* === STEP 3: VASTU RESULTS === */}
                 {step === 'vastu' && analysis && (
                     <motion.div key="vastu" initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0, scale: 0.95 }}
-                        className="py-4 space-y-5">
+                        className="py-4 space-y-8">
+
+                        {/* Intelligence Flags */}
+                        <div className="flex flex-wrap gap-2 justify-center">
+                            {analysis.flags?.map((flag, idx) => (
+                                <div key={idx} className={`flex items-center gap-2 px-4 py-2 rounded-full border text-[10px] font-space uppercase tracking-widest font-bold ${flag.status === 'Good' ? 'border-green-500/30 bg-green-500/10 text-green-400' :
+                                        flag.status === 'Warning' ? 'border-yellow-500/30 bg-yellow-500/10 text-yellow-400' :
+                                            'border-blue-500/30 bg-blue-500/10 text-blue-400'
+                                    }`}>
+                                    <div className={`w-1.5 h-1.5 rounded-full ${flag.status === 'Good' ? 'bg-green-500' : flag.status === 'Warning' ? 'bg-yellow-500' : 'bg-blue-500'}`} />
+                                    {flag.category}: {flag.text}
+                                </div>
+                            ))}
+                        </div>
+
                         {/* Uploaded Image Small */}
                         {uploadedImage && (
-                            <div className="relative aspect-[21/9] rounded-2xl overflow-hidden border border-white/10 group cursor-zoom-in" onClick={() => setLightboxImage(uploadedImage)}>
+                            <div className="relative aspect-[21/9] rounded-3xl overflow-hidden border border-white/10 group cursor-zoom-in" onClick={() => setLightboxImage(uploadedImage)}>
                                 <img src={uploadedImage} alt="Your upload" className="w-full h-full object-contain bg-black/50" />
                                 <BoundingBoxes objects={analysis.objects} visible={true} />
-                                <div className="absolute top-3 left-3 bg-secondary/90 text-primary text-[10px] font-space uppercase tracking-widest px-3 py-1 rounded-full font-bold">
-                                    Sketch Mapping
-                                </div>
-                                <div className="absolute inset-0 bg-black/30 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
-                                    <Eye className="text-white" size={24} />
+                                <div className="absolute top-4 left-4 bg-secondary/90 text-primary text-[10px] font-space uppercase tracking-widest px-4 py-1.5 rounded-full font-bold shadow-2xl">
+                                    Spatial Analysis Mapping
                                 </div>
                             </div>
                         )}
 
-                        {/* Vastu Flow Down for Step 3 if Fullscreen */}
-                        {variant === 'fullscreen' ? (
-                            <VastuAnalysisFlow analysis={analysis} />
-                        ) : (
+                        <div className="grid md:grid-cols-2 gap-8">
                             <div
                                 onClick={() => setShowVastuDetails(true)}
-                                className="text-center space-y-4 bg-white/5 p-8 rounded-3xl border border-white/10 cursor-pointer hover:bg-white/10 transition-all group"
+                                className="text-center space-y-4 bg-white/5 p-8 rounded-[2rem] border border-white/10 cursor-pointer hover:bg-white/10 transition-all group"
                             >
                                 <div className="w-24 h-24 rounded-full bg-secondary/10 flex items-center justify-center mx-auto relative group-hover:scale-110 transition-transform">
                                     <Compass className="text-secondary" size={48} />
-                                    <motion.div className="absolute inset-0 rounded-full border border-secondary/30"
-                                        initial={{ rotate: 0 }} animate={{ rotate: 360 }}
-                                        transition={{ duration: 10, repeat: Infinity, ease: "linear" }} />
                                 </div>
                                 <div>
-                                    <h4 className="text-2xl text-white font-playfair font-bold">Vastu Compliance Score</h4>
+                                    <h4 className="text-2xl text-white font-playfair font-bold">Vastu Compliance</h4>
                                     <div className="flex items-center justify-center gap-4 mt-2">
                                         <div className="flex items-end gap-1 text-secondary">
                                             <span className="text-5xl font-bold">{analysis.vastu_score}</span>
                                             <span className="text-xl pb-1.5 opacity-60">/100</span>
                                         </div>
-                                        <span className={`text-[10px] font-space uppercase tracking-[0.2em] px-4 py-1.5 rounded-full border ${analysis.status === 'Auspicious' ? 'border-green-500/50 text-green-400 bg-green-500/10' :
-                                            analysis.status === 'Neutral' ? 'border-yellow-500/50 text-yellow-400 bg-yellow-500/10' :
-                                                'border-red-500/50 text-red-400 bg-red-500/10'
-                                            }`}>{analysis.status}</span>
                                     </div>
                                 </div>
-                                <div className="flex items-center justify-center gap-2 text-secondary text-[10px] font-space uppercase tracking-[0.2em] opacity-0 group-hover:opacity-100 transition-opacity">
-                                    View Remedial Path <ArrowRight size={12} />
+                            </div>
+
+                            <div className="bg-white/5 p-8 rounded-[2rem] border border-white/10 flex flex-col justify-center text-center space-y-4">
+                                <p className="text-secondary text-[10px] font-space uppercase tracking-[0.2em]">Estimate Budget</p>
+                                <div className="space-y-1">
+                                    <h5 className="text-4xl text-white font-bold">₹{analysis.estimated_price?.toLocaleString('en-IN')}</h5>
+                                    <p className="text-white/40 text-[10px] uppercase font-space tracking-widest">EMI Starts at ₹{analysis.emi_estimate?.toLocaleString('en-IN')}/mo</p>
+                                </div>
+                                <div className="flex items-center justify-center gap-2 text-green-400 text-[10px] font-space font-bold uppercase tracking-widest bg-green-500/10 py-2 rounded-full border border-green-500/20">
+                                    <CheckCircle2 size={12} /> Within Selected Budget
                                 </div>
                             </div>
-                        )}
+                        </div>
 
-                        <p className="text-white/40 text-xs text-center font-inter px-4">{analysis.summary}</p>
-                        <p className="text-secondary text-[10px] text-center font-space uppercase tracking-[0.4em] font-bold animate-pulse">Scanning Designs...</p>
+                        <p className="text-white/40 text-xs text-center font-inter px-4 italic leading-relaxed">{analysis.summary}</p>
+                        <p className="text-secondary text-[10px] text-center font-space uppercase tracking-[0.4em] font-bold animate-pulse">Generating Decision-Ready Designs...</p>
                     </motion.div>
                 )}
 
