@@ -13,6 +13,7 @@ import OurFactory from './pages/OurFactory';
 import Residential from './pages/Residential';
 import Commercial from './pages/Commercial';
 import Corporate from './pages/Corporate';
+import Location from './pages/Location';
 
 function App() {
     useEffect(() => {
@@ -42,6 +43,7 @@ function App() {
                         <Route path="/residential" element={<Residential />} />
                         <Route path="/commercial" element={<Commercial />} />
                         <Route path="/corporate" element={<Corporate />} />
+                        <Route path="/location/:locationSlug" element={<Location />} />
                     </Routes>
                 </main>
                 <Footer />

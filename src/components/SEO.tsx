@@ -3,39 +3,59 @@ import { Helmet } from 'react-helmet-async';
 interface SEOProps {
     title: string;
     description: string;
-    image?: string;
-    url?: string;
-    type?: string;
+    canonical?: string;
+    schema?: any[];
+    type?: 'website' | 'article';
+    imageUrl?: string;
 }
 
-const SEO = ({ title, description, image, url, type = 'website' }: SEOProps) => {
-    const siteName = 'SMM Modular Furniture';
-    const fullTitle = `${title} | ${siteName}`;
+const baseUrl = 'https://smmmodular-5ce23f85d0ee.herokuapp.com'; // Wait, let me check the prompt for the original URL.
+// The prompt has: URL: https://smmmodular-5ce23f85d0ee.herokuapp.com/
+
+export const SEO = ({ title, description, canonical, schema = [], type = 'website', imageUrl }: SEOProps) => {
+    const fullCanonical = canonical ? `${baseUrl}${canonical}` : baseUrl;
+    const finalTitle = `${title} | SMM Modular Furniture`;
+    const defaultImage = `${baseUrl}/images/SMM-Logo.png`;
+    const finalImage = imageUrl ? (imageUrl.startsWith('http') ? imageUrl : `${baseUrl}${imageUrl}`) : defaultImage;
+
+    const baseSchema = {
+        "@context": "https://schema.org",
+        "@type": "Organization",
+        "name": "SMM Modular Furniture",
+        "url": baseUrl,
+        "logo": defaultImage,
+        "sameAs": []
+    };
+
+    const schemas = [baseSchema, ...schema];
 
     return (
         <Helmet>
-            {/* Basic Meta Tags */}
-            <title>{fullTitle}</title>
+            <title>{finalTitle}</title>
             <meta name="description" content={description} />
+            <link rel="canonical" href={fullCanonical} />
 
-            {/* Open Graph / Facebook */}
+            {/* Open Graph */}
             <meta property="og:type" content={type} />
-            <meta property="og:title" content={fullTitle} />
+            <meta property="og:title" content={finalTitle} />
             <meta property="og:description" content={description} />
-            {image && <meta property="og:image" content={image} />}
-            {url && <meta property="og:url" content={url} />}
-            <meta property="og:site_name" content={siteName} />
+            <meta property="og:image" content={finalImage} />
+            <meta property="og:image:width" content="1200" />
+            <meta property="og:image:height" content="630" />
+            <meta property="og:url" content={fullCanonical} />
 
             {/* Twitter */}
             <meta name="twitter:card" content="summary_large_image" />
-            <meta name="twitter:title" content={fullTitle} />
+            <meta name="twitter:title" content={finalTitle} />
             <meta name="twitter:description" content={description} />
-            {image && <meta name="twitter:image" content={image} />}
+            <meta name="twitter:image" content={finalImage} />
 
-            {/* Canonical URL */}
-            {url && <link rel="canonical" href={url} />}
+            {/* JSON-LD Schemas */}
+            {schemas.map((s, index) => (
+                <script key={index} type="application/ld+json">
+                    {JSON.stringify(s)}
+                </script>
+            ))}
         </Helmet>
     );
 };
-
-export default SEO;

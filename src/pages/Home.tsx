@@ -2,6 +2,7 @@ import { useRef } from 'react';
 import { motion, useScroll, useTransform } from 'framer-motion';
 import { ArrowRight, CheckCircle2, Factory, Palette, Clock, ShieldCheck, Star, Users, MapPin } from 'lucide-react';
 import { Link } from 'react-router-dom';
+import { SEO } from '../components/SEO';
 
 const Home = () => {
     const heroRef = useRef(null);
@@ -35,8 +36,28 @@ const Home = () => {
         { num: "05", title: "Handover", desc: "Move into your dream home in 45 days" },
     ];
 
+    const localBusinessSchema = {
+        "@type": "LocalBusiness",
+        "name": "SMM Modular Furniture",
+        "image": "https://smmmodular-5ce23f85d0ee.herokuapp.com/images/services/residential-projects/img(18).webp",
+        "url": "https://smmmodular-5ce23f85d0ee.herokuapp.com/",
+        "telephone": "+917624997792",
+        "address": {
+            "@type": "PostalAddress",
+            "addressLocality": "Bangalore",
+            "addressRegion": "Karnataka",
+            "addressCountry": "IN"
+        }
+    };
+
     return (
         <div className="bg-white">
+            <SEO
+                title="Best Interior Designers in Bangalore"
+                description="Transform your home with SMM Modular Furniture. Award-winning interior designers in Bangalore specializing in modular kitchens, wardrobes & custom furniture."
+                canonical="/"
+                schema={[localBusinessSchema]}
+            />
             {/* Hero Section */}
             <section ref={heroRef} className="relative min-h-[100dvh] flex flex-col lg:flex-row overflow-hidden bg-primary">
                 {/* Visual Area (Image) */}

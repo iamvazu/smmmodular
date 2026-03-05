@@ -30,7 +30,7 @@ const Footer = () => {
                     <div className="space-y-6">
                         <h4 className="font-space text-xs font-bold uppercase tracking-widest text-secondary">Navigation</h4>
                         <ul className="space-y-4">
-                            {['Home', 'Services', 'Our Factory', 'Portfolio', 'Contact'].map((item) => (
+                            {['Home', 'Services', 'Our Factory'].map((item) => (
                                 <li key={item}>
                                     <Link to={item === 'Home' ? '/' : `/${item.toLowerCase().replace(' ', '-')}`} className="text-white/70 hover:text-white hover:pl-2 transition-all duration-300 text-sm font-inter">
                                         {item}
@@ -42,11 +42,13 @@ const Footer = () => {
 
                     {/* Services */}
                     <div className="space-y-6">
-                        <h4 className="font-space text-xs font-bold uppercase tracking-widest text-secondary">Our Expertise</h4>
+                        <h4 className="font-space text-xs font-bold uppercase tracking-widest text-secondary">Locations</h4>
                         <ul className="space-y-4">
-                            {['Residential Design', 'Commercial Interiors', 'Corporate Workspaces', 'Modular Kitchens', 'Bespoke Wardrobes'].map((item) => (
-                                <li key={item} className="text-white/70 hover:text-white transition-all duration-300 text-sm font-inter cursor-pointer">
-                                    {item}
+                            {['Mysore', 'Coimbatore', 'Hyderabad', 'Chennai', 'Kochi'].map((item) => (
+                                <li key={item}>
+                                    <Link to={`/location/${item.toLowerCase()}`} className="text-white/70 hover:text-white hover:pl-2 transition-all duration-300 text-sm font-inter">
+                                        {item}
+                                    </Link>
                                 </li>
                             ))}
                         </ul>

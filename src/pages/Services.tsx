@@ -1,6 +1,7 @@
 import { motion } from 'framer-motion';
 import { ArrowRight, Hammer, Layers, Ruler, Home, Building2, Briefcase, ChevronRight } from 'lucide-react';
 import { Link } from 'react-router-dom';
+import { SEO } from '../components/SEO';
 
 const Services = () => {
     const categories = [
@@ -44,6 +45,11 @@ const Services = () => {
 
     return (
         <div className="min-h-screen">
+            <SEO
+                title="Interior Design Services | Modular Kitchens & Wardrobes"
+                description="Explore SMM Modular Furniture's comprehensive interior design services. We specialize in modular kitchens, bespoke wardrobes, living room setups, and complete workspace solutions in Bangalore."
+                canonical="/services"
+            />
             {/* Hero */}
             <section className="relative min-h-[60vh] md:min-h-[80vh] flex items-center overflow-hidden">
                 <div className="absolute inset-0 z-0">

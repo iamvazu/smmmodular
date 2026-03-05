@@ -1,4 +1,4 @@
 User-agent: *
 Allow: /
 
-Sitemap: https://smmmodularfurniture.com/sitemap.xml
+Sitemap: https://smmmodular-5ce23f85d0ee.herokuapp.com/sitemap.xml
