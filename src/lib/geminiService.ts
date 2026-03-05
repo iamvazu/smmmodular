@@ -1,7 +1,7 @@
 import { GoogleGenAI, Type } from "@google/genai";
 import type { AnalysisResult, RenderVariation } from "../types/aura";
 
-const API_KEY = import.meta.env.VITE_GEMINI_API_KEY || "AIzaSyDBRBY7faHAp1Dbs11iy4aHsyefzNdQHxc";
+const API_KEY = import.meta.env.VITE_GEMINI_API_KEY || "AIzaSyBAL-yJ0kP0ttS-KfxG4HiBf4P9-3JAXto";
 
 const MAX_RETRIES = 5;
 const INITIAL_BACKOFF = 15000;
@@ -72,7 +72,7 @@ export const analyzeSketch = async (
     The user selected room type: "${roomType}".`;
 
     const response = await withRetry(() => ai.models.generateContent({
-        model: "gemini-2.0-flash",
+        model: "gemini-1.5-flash",
         contents: {
             parts: [
                 { inlineData: { mimeType: "image/jpeg", data: base64Image } },
