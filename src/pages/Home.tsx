@@ -4,7 +4,6 @@ import { ArrowRight, CheckCircle2, Factory, Palette, Clock, ShieldCheck, Home as
 import { Link } from 'react-router-dom';
 import { SEO } from '../components/SEO';
 import { AuraAIWidget } from '../components/AuraAIWidget';
-import { StatCounter } from '../components/StatCounter';
 import { AIGallery } from '../components/AIGallery';
 import { LeadModal } from '../components/LeadModal';
 import { useState } from 'react';
@@ -20,12 +19,6 @@ const Home = () => {
     const heroImageY = useTransform(scrollYProgress, [0, 1], ["0%", "20%"]);
     const heroTextOpacity = useTransform(scrollYProgress, [0, 0.5], [1, 0]);
 
-    const stats = [
-        { label: "Happy Homes", value: 5000, suffix: "+", icon: <HomeIcon className="text-secondary" />, isNew: false },
-        { label: "AI Designs Generated", value: 15000, suffix: "+", icon: <Wand2 className="text-secondary" />, isNew: true },
-        { label: "Vastu Compliance", value: 98, suffix: "%", icon: <Compass className="text-secondary" />, isNew: true },
-        { label: "Day Delivery", value: 45, suffix: "", icon: <Clock className="text-secondary" />, isNew: false },
-    ];
 
     const features = [
         { title: "No Hidden Costs", desc: "Transparent pricing model with zero surprise expenses.", icon: <Palette /> },
@@ -111,15 +104,22 @@ const Home = () => {
                                 </button>
                             </div>
 
-                            <div className="flex items-center gap-8 pt-8 border-t border-white/5">
+                            <div className="grid grid-cols-2 lg:grid-cols-4 gap-6 pt-8 border-t border-white/5">
+                                <div className="space-y-1">
+                                    <p className="text-2xl font-bold text-white font-playfair">5000+</p>
+                                    <p className="text-[10px] text-white/40 uppercase tracking-widest font-space">Happy Homes</p>
+                                </div>
                                 <div className="space-y-1">
                                     <p className="text-2xl font-bold text-white font-playfair">15k+</p>
-                                    <p className="text-[10px] text-white/40 uppercase tracking-widest font-space">AI Renders</p>
+                                    <p className="text-[10px] text-white/40 uppercase tracking-widest font-space">AI Designs</p>
                                 </div>
-                                <div className="w-px h-10 bg-white/10" />
                                 <div className="space-y-1">
                                     <p className="text-2xl font-bold text-white font-playfair">98%</p>
                                     <p className="text-[10px] text-white/40 uppercase tracking-widest font-space">Vastu Score</p>
+                                </div>
+                                <div className="space-y-1">
+                                    <p className="text-2xl font-bold text-white font-playfair">45</p>
+                                    <p className="text-[10px] text-white/40 uppercase tracking-widest font-space">Day Delivery</p>
                                 </div>
                             </div>
                         </motion.div>
@@ -135,24 +135,6 @@ const Home = () => {
                         >
                             <AuraAIWidget variant="hero" showHeroText={false} />
                         </motion.div>
-                    </div>
-                </div>
-            </section>
-
-            {/* Stats Bar */}
-            <section className="bg-warmWhite py-10 md:py-16 border-b border-black/5">
-                <div className="container-custom">
-                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8 md:gap-12">
-                        {stats.map((stat, i) => (
-                            <StatCounter
-                                key={i}
-                                value={stat.value as number}
-                                label={stat.label}
-                                suffix={stat.suffix}
-                                icon={stat.icon}
-                                isNew={stat.isNew}
-                            />
-                        ))}
                     </div>
                 </div>
             </section>
