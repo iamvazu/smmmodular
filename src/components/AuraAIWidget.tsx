@@ -1,4 +1,4 @@
-import { useState, useCallback, useEffect } from 'react';
+import { useState, useCallback, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useDropzone } from 'react-dropzone';
 import { Upload, Wand2, Compass, Download, Loader2, ArrowRight, CheckCircle2, AlertTriangle, ChevronLeft, ChevronRight, Eye, Calendar, Clock, X, Send, FileText, Image as ImageIcon } from 'lucide-react';
@@ -216,19 +216,19 @@ export function AuraAIWidget({ variant = 'hero', showHeroText = true }: AuraAIWi
 
         return (
             <div className="absolute inset-0 flex items-center justify-center overflow-hidden">
-                <img 
+                <img
                     ref={imgRef}
-                    src={image} 
-                    alt="Mapping Source" 
+                    src={image}
+                    alt="Mapping Source"
                     className="w-full h-full object-contain"
                     onLoad={updateBounds}
                 />
-                
+
                 <div className="absolute inset-0 pointer-events-none">
                     <AnimatePresence>
                         {objects.map((obj, i) => {
                             const [ymin, xmin, ymax, xmax] = obj.bbox;
-                            
+
                             const boxTop = imageBounds.top + (ymin / 1000) * imageBounds.height;
                             const boxLeft = imageBounds.left + (xmin / 1000) * imageBounds.width;
                             const boxWidth = ((xmax - xmin) / 1000) * imageBounds.width;
