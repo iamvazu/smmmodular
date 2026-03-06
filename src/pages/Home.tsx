@@ -92,20 +92,20 @@ const Home = () => {
                         </div>
 
                         <div className="space-y-4">
-                            <h1 className="text-4xl md:text-6xl xl:text-7xl font-playfair font-bold text-white leading-[1.1] tracking-tight">
+                            <h1 className="text-4xl md:text-5xl lg:text-6xl font-playfair font-bold text-white leading-[1.1] tracking-tight">
                                 Visualize<br />
                                 Perfection <span className="text-secondary italic font-normal">Fast.</span>
                             </h1>
-                            <p className="text-white/60 font-inter text-base md:text-lg max-w-xl leading-relaxed">
+                            <p className="text-white/60 font-inter text-sm md:text-base max-w-lg leading-relaxed">
                                 SMM Aura AI brings your vision to life in 30 seconds. Upload any plan and experience photorealistic interiors tailored to your space.
                             </p>
                         </div>
 
-                        <div className="flex flex-col sm:flex-row gap-4 pt-4">
-                            <Link to="/aura-ai" className="group flex items-center justify-center gap-3 bg-secondary text-primary px-8 py-4 md:py-5 rounded-2xl font-space font-bold uppercase tracking-widest text-[10px] md:text-xs hover:bg-white transition-all shadow-xl shadow-secondary/10">
-                                Launch Aura AI <ArrowRight size={18} className="group-hover:translate-x-2 transition-transform" />
+                        <div className="flex flex-col sm:flex-row gap-3 pt-2">
+                            <Link to="/aura-ai" className="group flex items-center justify-center gap-2 bg-secondary text-primary px-6 py-3.5 rounded-xl font-space font-bold uppercase tracking-widest text-[10px] hover:bg-white transition-all shadow-xl shadow-secondary/10">
+                                Launch Studio <ArrowRight size={16} className="group-hover:translate-x-1 transition-transform" />
                             </Link>
-                            <button onClick={() => setIsLeadModalOpen(true)} className="flex items-center justify-center gap-3 bg-white/5 border border-white/10 text-white px-8 py-4 md:py-5 rounded-2xl font-space font-bold uppercase tracking-widest text-[10px] md:text-xs hover:bg-white/10 transition-all backdrop-blur-md">
+                            <button onClick={() => setIsLeadModalOpen(true)} className="flex items-center justify-center gap-2 bg-white/5 border border-white/10 text-white px-6 py-3.5 rounded-xl font-space font-bold uppercase tracking-widest text-[10px] hover:bg-white/10 transition-all backdrop-blur-md">
                                 Expert Consult
                             </button>
                         </div>
@@ -125,12 +125,12 @@ const Home = () => {
                 </div>
 
                 {/* Right Column: Interaction */}
-                <div className="w-full lg:w-[50%] flex items-center justify-center p-4 lg:p-12 relative z-10 order-2">
+                <div className="w-full lg:w-[45%] flex items-center justify-center p-4 lg:p-10 relative z-10 order-2">
                     <motion.div
                         initial={{ opacity: 0, scale: 0.9 }}
                         animate={{ opacity: 1, scale: 1 }}
                         transition={{ duration: 1, delay: 0.4 }}
-                        className="w-full max-w-lg lg:max-w-xl"
+                        className="w-full max-w-lg"
                     >
                         <AuraAIWidget variant="hero" showHeroText={false} />
                     </motion.div>

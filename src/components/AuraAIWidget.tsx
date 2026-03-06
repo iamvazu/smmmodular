@@ -539,7 +539,7 @@ export function AuraAIWidget({ variant = 'hero', showHeroText = true }: AuraAIWi
     );
 
     return (
-        <div className={`aura-widget bg-zinc-950/80 backdrop-blur-2xl rounded-[3rem] p-8 md:p-12 border border-white/10 w-full transition-all duration-700 ${step !== 'upload' ? 'max-w-6xl mx-auto shadow-[0_64px_128px_-32px_rgba(0,0,0,1)]' : 'max-w-xl mx-auto'
+        <div className={`aura-widget bg-zinc-950/80 backdrop-blur-2xl rounded-[2rem] p-6 md:p-8 border border-white/10 w-full transition-all duration-700 ${step !== 'upload' ? 'max-w-6xl mx-auto shadow-[0_64px_128px_-32px_rgba(0,0,0,1)]' : 'max-w-md mx-auto'
             } ${variant === 'floating' ? 'shadow-2xl' : ''}`}>
             <Lightbox />
             <BookingModal />
@@ -567,47 +567,47 @@ export function AuraAIWidget({ variant = 'hero', showHeroText = true }: AuraAIWi
 
                         {/* Drop Zone */}
                         <div {...getRootProps()}
-                            className={`border-2 border-dashed ${isDragActive ? 'border-secondary bg-secondary/10' : 'border-white/10 bg-white/5 hover:border-secondary/50 hover:bg-white/10'} rounded-[2rem] p-10 md:p-16 text-center cursor-pointer transition-all duration-300 flex flex-col items-center justify-center gap-6 group shadow-2xl`}>
+                            className={`border-2 border-dashed ${isDragActive ? 'border-secondary bg-secondary/10' : 'border-white/10 bg-white/5 hover:border-secondary/50 hover:bg-white/10'} rounded-2xl p-6 md:p-10 text-center cursor-pointer transition-all duration-300 flex flex-col items-center justify-center gap-4 group shadow-xl`}>
                             <input {...getInputProps()} />
-                            <div className="w-20 h-20 rounded-3xl bg-secondary/20 flex items-center justify-center text-secondary group-hover:scale-110 transition-transform">
-                                <Upload size={40} />
+                            <div className="w-14 h-14 rounded-2xl bg-secondary/20 flex items-center justify-center text-secondary group-hover:scale-110 transition-transform">
+                                <Upload size={28} />
                             </div>
-                            <div className="space-y-2">
-                                <p className="text-white font-playfair text-2xl font-bold">Upload sketch, photo, or plan</p>
-                                <p className="text-white/40 text-sm font-inter">JPG • PNG • WebP • Multiple Rooms Supported</p>
+                            <div className="space-y-1">
+                                <p className="text-white font-playfair text-xl font-bold">Upload sketch, photo, or plan</p>
+                                <p className="text-white/40 text-[10px] font-inter uppercase tracking-widest">JPG • PNG • WebP</p>
                             </div>
                         </div>
 
                         {/* Pre-Processing Selectors */}
-                        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                            <div className="space-y-2">
-                                <label className="text-[10px] text-white/40 font-space uppercase tracking-widest ml-1">Room Type</label>
+                        <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
+                            <div className="space-y-1">
+                                <label className="text-[9px] text-white/40 font-space uppercase tracking-widest ml-1">Room Type</label>
                                 <select value={roomType} onChange={(e) => setRoomType(e.target.value)}
-                                    className="w-full bg-white/5 text-white border border-white/10 rounded-2xl p-4 outline-none focus:border-secondary transition-all cursor-pointer">
+                                    className="w-full bg-white/5 text-white text-xs border border-white/10 rounded-xl p-3 outline-none focus:border-secondary transition-all cursor-pointer">
                                     <option value="living_room">Living Room</option>
                                     <option value="bedroom">Master Bedroom</option>
                                     <option value="kitchen">Modular Kitchen</option>
                                     <option value="entire_home">Full Floor Plan</option>
                                 </select>
                             </div>
-                            <div className="space-y-2">
-                                <label className="text-[10px] text-white/40 font-space uppercase tracking-widest ml-1">Design Style</label>
+                            <div className="space-y-1">
+                                <label className="text-[9px] text-white/40 font-space uppercase tracking-widest ml-1">Design Style</label>
                                 <select value={selectedStyle} onChange={(e) => setSelectedStyle(e.target.value)}
-                                    className="w-full bg-white/5 text-white border border-white/10 rounded-2xl p-4 outline-none focus:border-secondary transition-all cursor-pointer">
+                                    className="w-full bg-white/5 text-white text-xs border border-white/10 rounded-xl p-3 outline-none focus:border-secondary transition-all cursor-pointer">
                                     <option value="modern">Modern Luxury</option>
                                     <option value="indian">Contemporary Indian</option>
                                     <option value="scandi">Scandinavian</option>
                                     <option value="minimal">Minimalist</option>
                                 </select>
                             </div>
-                            <div className="space-y-2">
-                                <label className="text-[10px] text-white/40 font-space uppercase tracking-widest ml-1">Vastu Mode</label>
+                            <div className="space-y-1">
+                                <label className="text-[9px] text-white/40 font-space uppercase tracking-widest ml-1">Vastu Mode</label>
                                 <button
                                     onClick={() => setVastuLock(!vastuLock)}
-                                    className={`w-full flex items-center justify-between border rounded-2xl p-4 transition-all ${vastuLock ? 'border-secondary/50 bg-secondary/10 text-secondary' : 'border-white/10 bg-white/5 text-white/50'}`}
+                                    className={`w-full flex items-center justify-between border rounded-xl p-3 text-xs transition-all ${vastuLock ? 'border-secondary/50 bg-secondary/10 text-secondary' : 'border-white/10 bg-white/5 text-white/50'}`}
                                 >
-                                    <span className="font-bold text-xs">Vastu Lock</span>
-                                    {vastuLock ? <CheckCircle2 size={16} /> : <div className="w-4 h-4 rounded-full border border-white/20" />}
+                                    <span className="font-space font-bold uppercase tracking-widest ml-1">Vastu Lock</span>
+                                    <CheckCircle2 size={14} className={vastuLock ? 'opacity-100' : 'opacity-0'} />
                                 </button>
                             </div>
                         </div>
