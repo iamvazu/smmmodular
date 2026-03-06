@@ -59,7 +59,7 @@ const Home = () => {
                 schema={[localBusinessSchema]}
             />
             {/* Hero Section */}
-            <section className="relative min-h-[90vh] lg:min-h-screen flex flex-col lg:flex-row items-center pt-20 lg:pt-0 overflow-hidden bg-primary w-full overflow-x-hidden">
+            <section className="relative min-h-[90vh] lg:min-h-screen flex flex-col lg:flex-row items-center pt-24 lg:pt-32 overflow-hidden bg-primary w-full overflow-x-hidden">
                 {/* Background Decor */}
                 <div className="absolute inset-0 z-0 pointer-events-none">
                     <div className="absolute top-0 right-0 w-1/2 h-full bg-gradient-to-l from-white/[0.02] to-transparent" />
@@ -79,18 +79,18 @@ const Home = () => {
                             initial={{ opacity: 0, x: -30 }}
                             animate={{ opacity: 1, x: 0 }}
                             transition={{ duration: 1, delay: 0.2 }}
-                            className="space-y-6 md:space-y-8"
+                            className="space-y-8 md:space-y-10"
                         >
-                            <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-white/5 border border-white/10 text-secondary text-[10px] md:text-xs font-space uppercase tracking-widest font-bold backdrop-blur-md">
-                                <Wand2 size={14} className="animate-pulse" /> Next-Gen AI Design Studio
+                            <div className="inline-flex items-center gap-2 px-5 py-2.5 rounded-full bg-white/5 border border-white/10 text-secondary text-[10px] md:text-sm font-space uppercase tracking-widest font-bold backdrop-blur-md mt-4">
+                                <Wand2 size={16} className="animate-pulse" /> Next-Gen AI Design Studio
                             </div>
 
                             <div className="space-y-4">
-                                <h1 className="text-3xl md:text-4xl lg:text-5xl xl:text-6xl font-playfair font-bold text-white leading-[1.1] tracking-tight break-words">
+                                <h1 className="text-4xl md:text-5xl lg:text-6xl xl:text-7xl font-playfair font-bold text-white leading-[1.05] tracking-tight break-words">
                                     Visualize<br />
                                     Perfection <span className="text-secondary italic font-normal">Fast.</span>
                                 </h1>
-                                <p className="text-white/60 font-inter text-sm md:text-base max-w-sm leading-relaxed">
+                                <p className="text-white/60 font-inter text-base md:text-lg max-w-sm leading-relaxed">
                                     SMM Aura AI brings your vision to life in 30 seconds. Upload any plan and experience photorealistic interiors tailored to your space.
                                 </p>
                             </div>
@@ -126,7 +126,7 @@ const Home = () => {
                     </div>
 
                     {/* Right Column: Interaction */}
-                    <div className="w-full lg:w-[50%] flex items-center justify-center py-10 lg:py-0">
+                    <div className="w-full lg:w-[50%] flex items-center justify-center py-10 lg:pt-32 lg:pb-10">
                         <motion.div
                             initial={{ opacity: 0, scale: 0.9 }}
                             animate={{ opacity: 1, scale: 1 }}

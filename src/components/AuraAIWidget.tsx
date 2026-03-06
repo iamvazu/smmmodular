@@ -585,10 +585,10 @@ export function AuraAIWidget({ variant = 'hero', showHeroText = true }: AuraAIWi
                                 <div className="relative">
                                     <select value={roomType} onChange={(e) => setRoomType(e.target.value)}
                                         className="w-full bg-white/5 text-white text-[11px] border border-white/10 rounded-xl px-4 h-[52px] outline-none focus:border-secondary transition-all cursor-pointer appearance-none">
-                                        <option value="living_room">Living Room</option>
-                                        <option value="bedroom">Master Bedroom</option>
-                                        <option value="kitchen">Modular Kitchen</option>
-                                        <option value="entire_home">Full Floor Plan</option>
+                                        <option value="living_room" className="bg-primary text-white">Living Room</option>
+                                        <option value="bedroom" className="bg-primary text-white">Master Bedroom</option>
+                                        <option value="kitchen" className="bg-primary text-white">Modular Kitchen</option>
+                                        <option value="entire_home" className="bg-primary text-white">Full Floor Plan</option>
                                     </select>
                                     <div className="absolute right-4 top-1/2 -translate-y-1/2 pointer-events-none text-white/20">
                                         <ChevronRight size={14} className="rotate-90" />
@@ -600,10 +600,10 @@ export function AuraAIWidget({ variant = 'hero', showHeroText = true }: AuraAIWi
                                 <div className="relative">
                                     <select value={selectedStyle} onChange={(e) => setSelectedStyle(e.target.value)}
                                         className="w-full bg-white/5 text-white text-[11px] border border-white/10 rounded-xl px-4 h-[52px] outline-none focus:border-secondary transition-all cursor-pointer appearance-none">
-                                        <option value="modern">Modern Luxury</option>
-                                        <option value="indian">Contemporary Indian</option>
-                                        <option value="scandi">Scandinavian</option>
-                                        <option value="minimal">Minimalist</option>
+                                        <option value="modern" className="bg-primary text-white">Modern Luxury</option>
+                                        <option value="indian" className="bg-primary text-white">Contemporary Indian</option>
+                                        <option value="scandi" className="bg-primary text-white">Scandinavian</option>
+                                        <option value="minimal" className="bg-primary text-white">Minimalist</option>
                                     </select>
                                     <div className="absolute right-4 top-1/2 -translate-y-1/2 pointer-events-none text-white/20">
                                         <ChevronRight size={14} className="rotate-90" />
@@ -632,7 +632,7 @@ export function AuraAIWidget({ variant = 'hero', showHeroText = true }: AuraAIWi
                                 </div >
                                 <div className="w-px h-8 bg-white/10" />
                                 <div className="text-center">
-                                    <p className="text-xl font-bold text-white">15 Min</p>
+                                    <p className="text-xl font-bold text-white">2 Min</p>
                                     <p className="text-[8px] text-white/40 uppercase tracking-widest">Expert Delivery</p>
                                 </div>
                             </div>
