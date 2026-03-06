@@ -66,74 +66,76 @@ const Home = () => {
                 schema={[localBusinessSchema]}
             />
             {/* Hero Section */}
-            <section ref={heroRef} className="relative min-h-screen flex flex-col lg:flex-row overflow-hidden bg-[#0A0A0A] items-center pt-32 lg:pt-0 pb-12 lg:pb-0">
-                {/* Background Design Elements */}
+            <section className="relative min-h-[90vh] lg:min-h-screen flex flex-col lg:flex-row items-center pt-20 lg:pt-0 overflow-hidden bg-primary w-full">
+                {/* Background Decor */}
                 <div className="absolute inset-0 z-0 pointer-events-none">
-                    <div className="absolute top-0 right-0 w-[60%] h-full bg-secondary/5 blur-[120px] rounded-full translate-x-1/2 -translate-y-1/2" />
-                    <div className="absolute bottom-0 left-0 w-[40%] h-[60%] bg-blue-500/5 blur-[120px] rounded-full -translate-x-1/2 translate-y-1/2" />
+                    <div className="absolute top-0 right-0 w-1/2 h-full bg-gradient-to-l from-white/[0.02] to-transparent" />
+                    <div className="absolute top-1/4 -left-20 w-64 h-64 bg-secondary/10 rounded-full blur-[120px]" />
                     <img
                         src="images/services/residential-projects/img(18).webp"
                         alt="Background"
-                        className="w-full h-full object-cover opacity-20 grayscale brightness-50"
+                        className="w-full h-full object-cover opacity-10 grayscale"
                     />
-                    <div className="absolute inset-0 bg-gradient-to-tr from-black via-black/90 to-transparent" />
+                    <div className="absolute inset-0 bg-gradient-to-tr from-black/80 via-black/40 to-transparent" />
                 </div>
 
-                {/* Left Column: Narrative */}
-                <div className="w-full lg:w-[50%] flex items-center p-6 lg:p-12 xl:p-20 relative z-10 order-1">
-                    <motion.div
-                        initial={{ opacity: 0, x: -30 }}
-                        animate={{ opacity: 1, x: 0 }}
-                        transition={{ duration: 1, delay: 0.2 }}
-                        className="space-y-6 md:space-y-8 w-full"
-                    >
-                        <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-white/5 border border-white/10 text-secondary text-[10px] md:text-xs font-space uppercase tracking-widest font-bold backdrop-blur-md">
-                            <Wand2 size={14} className="animate-pulse" /> Next-Gen AI Design Studio
-                        </div>
-
-                        <div className="space-y-4">
-                            <h1 className="text-4xl md:text-5xl lg:text-6xl font-playfair font-bold text-white leading-[1.1] tracking-tight">
-                                Visualize<br />
-                                Perfection <span className="text-secondary italic font-normal">Fast.</span>
-                            </h1>
-                            <p className="text-white/60 font-inter text-sm md:text-base max-w-lg leading-relaxed">
-                                SMM Aura AI brings your vision to life in 30 seconds. Upload any plan and experience photorealistic interiors tailored to your space.
-                            </p>
-                        </div>
-
-                        <div className="flex flex-col sm:flex-row gap-3 pt-2">
-                            <Link to="/aura-ai" className="group flex items-center justify-center gap-2 bg-secondary text-primary px-6 py-3.5 rounded-xl font-space font-bold uppercase tracking-widest text-[10px] hover:bg-white transition-all shadow-xl shadow-secondary/10">
-                                Launch Studio <ArrowRight size={16} className="group-hover:translate-x-1 transition-transform" />
-                            </Link>
-                            <button onClick={() => setIsLeadModalOpen(true)} className="flex items-center justify-center gap-2 bg-white/5 border border-white/10 text-white px-6 py-3.5 rounded-xl font-space font-bold uppercase tracking-widest text-[10px] hover:bg-white/10 transition-all backdrop-blur-md">
-                                Expert Consult
-                            </button>
-                        </div>
-
-                        <div className="flex items-center gap-6 md:gap-10 pt-8 border-t border-white/5">
-                            <div className="space-y-1">
-                                <p className="text-xl md:text-2xl font-bold text-white font-playfair">15k+</p>
-                                <p className="text-[9px] md:text-[10px] text-white/40 uppercase tracking-widest font-space">AI Renders</p>
+                <div className="container-custom relative z-10 flex flex-col lg:flex-row items-center gap-12 lg:gap-8 w-full">
+                    {/* Left Column: Narrative */}
+                    <div className="w-full lg:w-[50%] flex flex-col justify-center py-10 lg:py-0">
+                        <motion.div
+                            initial={{ opacity: 0, x: -30 }}
+                            animate={{ opacity: 1, x: 0 }}
+                            transition={{ duration: 1, delay: 0.2 }}
+                            className="space-y-6 md:space-y-8"
+                        >
+                            <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-white/5 border border-white/10 text-secondary text-[10px] md:text-xs font-space uppercase tracking-widest font-bold backdrop-blur-md">
+                                <Wand2 size={14} className="animate-pulse" /> Next-Gen AI Design Studio
                             </div>
-                            <div className="w-px h-8 bg-white/10" />
-                            <div className="space-y-1">
-                                <p className="text-xl md:text-2xl font-bold text-white font-playfair">98%</p>
-                                <p className="text-[9px] md:text-[10px] text-white/40 uppercase tracking-widest font-space">Vastu Score</p>
-                            </div>
-                        </div>
-                    </motion.div>
-                </div>
 
-                {/* Right Column: Interaction */}
-                <div className="w-full lg:w-[45%] flex items-center justify-center p-4 lg:p-10 relative z-10 order-2">
-                    <motion.div
-                        initial={{ opacity: 0, scale: 0.9 }}
-                        animate={{ opacity: 1, scale: 1 }}
-                        transition={{ duration: 1, delay: 0.4 }}
-                        className="w-full max-w-lg"
-                    >
-                        <AuraAIWidget variant="hero" showHeroText={false} />
-                    </motion.div>
+                            <div className="space-y-4">
+                                <h1 className="text-3xl md:text-4xl lg:text-5xl xl:text-6xl font-playfair font-bold text-white leading-[1.1] tracking-tight break-words">
+                                    Visualize<br />
+                                    Perfection <span className="text-secondary italic font-normal">Fast.</span>
+                                </h1>
+                                <p className="text-white/60 font-inter text-sm md:text-base max-w-sm leading-relaxed">
+                                    SMM Aura AI brings your vision to life in 30 seconds. Upload any plan and experience photorealistic interiors tailored to your space.
+                                </p>
+                            </div>
+
+                            <div className="flex flex-col sm:flex-row gap-3">
+                                <Link to="/aura-ai" className="group flex items-center justify-center gap-2 bg-secondary text-primary px-6 py-3.5 rounded-xl font-space font-bold uppercase tracking-widest text-[10px] hover:bg-white transition-all">
+                                    Launch Studio <ArrowRight size={16} />
+                                </Link>
+                                <button onClick={() => setIsLeadModalOpen(true)} className="flex items-center justify-center gap-2 bg-white/5 border border-white/10 text-white px-6 py-3.5 rounded-xl font-space font-bold uppercase tracking-widest text-[10px] hover:bg-white/10 transition-all backdrop-blur-md">
+                                    Expert Consult
+                                </button>
+                            </div>
+
+                            <div className="flex items-center gap-8 pt-8 border-t border-white/5">
+                                <div className="space-y-1">
+                                    <p className="text-2xl font-bold text-white font-playfair">15k+</p>
+                                    <p className="text-[10px] text-white/40 uppercase tracking-widest font-space">AI Renders</p>
+                                </div>
+                                <div className="w-px h-10 bg-white/10" />
+                                <div className="space-y-1">
+                                    <p className="text-2xl font-bold text-white font-playfair">98%</p>
+                                    <p className="text-[10px] text-white/40 uppercase tracking-widest font-space">Vastu Score</p>
+                                </div>
+                            </div>
+                        </motion.div>
+                    </div>
+
+                    {/* Right Column: Interaction */}
+                    <div className="w-full lg:w-[50%] flex items-center justify-center py-10 lg:py-0">
+                        <motion.div
+                            initial={{ opacity: 0, scale: 0.9 }}
+                            animate={{ opacity: 1, scale: 1 }}
+                            transition={{ duration: 1, delay: 0.4 }}
+                            className="w-full max-w-lg lg:max-w-xl"
+                        >
+                            <AuraAIWidget variant="hero" showHeroText={false} />
+                        </motion.div>
+                    </div>
                 </div>
             </section>
 

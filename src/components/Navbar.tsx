@@ -43,12 +43,12 @@ const Navbar = () => {
                 </Link>
 
                 {/* Desktop Navigation */}
-                <div className="hidden xl:flex items-center space-x-6 2xl:space-x-10">
+                <div className="hidden 2xl:flex items-center space-x-8">
                     {navLinks.map((link) => (
                         <Link
                             key={link.path}
                             to={link.path}
-                            className={`font-space text-[10px] 2xl:text-[11px] font-bold uppercase tracking-[0.2em] transition-all duration-300 relative group shrink-0 ${location.pathname === link.path ? 'text-secondary' : (link.isAura ? 'text-secondary animate-pulse hover:text-white' : 'text-white/70 hover:text-white')}`}
+                            className={`font-space text-[11px] font-bold uppercase tracking-[0.15em] transition-all duration-300 relative group shrink-0 ${location.pathname === link.path ? 'text-secondary' : (link.isAura ? 'text-secondary animate-pulse hover:text-white' : 'text-white/70 hover:text-white')}`}
                         >
                             {link.name}
                             <span className={`absolute -bottom-2 left-0 h-[1px] bg-secondary transition-all duration-300 ${location.pathname === link.path ? 'w-full' : 'w-0 group-hover:w-full'}`}></span>
@@ -56,15 +56,30 @@ const Navbar = () => {
                     ))}
                     <a
                         href="tel:+917624997792"
-                        className="flex items-center space-x-2 bg-secondary text-primary px-4 2xl:px-6 py-2.5 2xl:py-3 font-space text-[9px] 2xl:text-[10px] font-bold uppercase tracking-widest hover:bg-white transition-all duration-500 shrink-0"
+                        className="flex items-center space-x-2 bg-secondary text-primary px-5 py-3 font-space text-[10px] font-bold uppercase tracking-widest hover:bg-white transition-all duration-500 shrink-0 shadow-lg shadow-secondary/10"
                     >
                         <Phone size={12} className="fill-primary" />
                         <span className="hidden mb:inline">Consult Now</span>
                     </a>
                 </div>
 
+                {/* Tablet Navigation (Intermediate screen sizes) */}
+                <div className="hidden lg:flex 2xl:hidden items-center space-x-4">
+                    {navLinks.filter(l => !l.path.includes('factory') && !l.path.includes('corporate')).map((link) => (
+                        <Link
+                            key={link.path}
+                            to={link.path}
+                            className={`font-space text-[10px] font-bold uppercase tracking-[0.1em] transition-all duration-300 relative group shrink-0 ${location.pathname === link.path ? 'text-secondary' : (link.isAura ? 'text-secondary animate-pulse hover:text-white' : 'text-white/70 hover:text-white')}`}
+                        >
+                            {link.name}
+                        </Link>
+                    ))}
+                    <Link to="/aura-ai" className="text-secondary font-bold text-[10px] uppercase">Aura AI ✨</Link>
+                    <a href="tel:+917624997792" className="bg-secondary text-primary px-3 py-2 rounded-lg text-[9px] font-bold">CONTACT</a>
+                </div>
+
                 {/* Mobile & Tablet Toggle */}
-                <div className="xl:hidden flex items-center gap-4">
+                <div className="lg:hidden flex items-center gap-4">
                     <a
                         href="tel:+917624997792"
                         className="flex items-center justify-center w-10 h-10 bg-secondary text-primary rounded-full hover:bg-white transition-all"

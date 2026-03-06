@@ -579,7 +579,7 @@ export function AuraAIWidget({ variant = 'hero', showHeroText = true }: AuraAIWi
                         </div>
 
                         {/* Pre-Processing Selectors */}
-                        <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
+                        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3">
                             <div className="space-y-1">
                                 <label className="text-[9px] text-white/40 font-space uppercase tracking-widest ml-1">Room Type</label>
                                 <select value={roomType} onChange={(e) => setRoomType(e.target.value)}
@@ -600,13 +600,13 @@ export function AuraAIWidget({ variant = 'hero', showHeroText = true }: AuraAIWi
                                     <option value="minimal">Minimalist</option>
                                 </select>
                             </div>
-                            <div className="space-y-1">
+                            <div className="space-y-1 sm:col-span-2 md:col-span-1">
                                 <label className="text-[9px] text-white/40 font-space uppercase tracking-widest ml-1">Vastu Mode</label>
                                 <button
                                     onClick={() => setVastuLock(!vastuLock)}
                                     className={`w-full flex items-center justify-between border rounded-xl p-3 text-xs transition-all ${vastuLock ? 'border-secondary/50 bg-secondary/10 text-secondary' : 'border-white/10 bg-white/5 text-white/50'}`}
                                 >
-                                    <span className="font-space font-bold uppercase tracking-widest ml-1">Vastu Lock</span>
+                                    <span className="font-space font-bold uppercase tracking-widest">Vastu Lock</span>
                                     <CheckCircle2 size={14} className={vastuLock ? 'opacity-100' : 'opacity-0'} />
                                 </button>
                             </div>

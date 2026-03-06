@@ -57,14 +57,14 @@ export function StatCounter({ value, label, suffix = '', icon, duration = 2, isN
                 {icon}
             </div>
             <div className="flex items-baseline gap-1 mb-2">
-                <span className="text-4xl md:text-5xl font-playfair font-bold text-primary tabular-nums">
+                <span className="text-3xl md:text-4xl font-playfair font-bold text-primary tabular-nums">
                     {count}
                 </span>
-                <span className="text-xl md:text-2xl font-playfair font-bold text-secondary">
+                <span className="text-lg md:text-xl font-playfair font-bold text-secondary">
                     {suffix}
                 </span>
             </div>
-            <span className="text-xs md:text-sm font-space uppercase tracking-widest text-darkGray/60 font-bold text-center">
+            <span className="text-[10px] md:text-xs font-space uppercase tracking-widest text-darkGray/60 font-bold text-center">
                 {label}
             </span>
         </motion.div>
