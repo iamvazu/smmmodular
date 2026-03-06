@@ -543,10 +543,12 @@ export function AuraAIWidget({ variant = 'hero', showHeroText = true }: AuraAIWi
             } ${variant === 'floating' ? 'shadow-2xl' : ''}`}>
             <Lightbox />
             <BookingModal />
-            <div className="flex items-center justify-between mb-6">
-                <h3 className="text-xl md:text-2xl font-playfair font-bold text-white flex items-center gap-2">
-                    <Wand2 className="text-secondary" /> Aura AI <span className="text-secondary">✨</span>
-                </h3>
+            <div className={`flex items-center ${variant === 'hero' ? 'justify-end' : 'justify-between'} mb-6`}>
+                {variant !== 'hero' && (
+                    <h3 className="text-xl md:text-2xl font-playfair font-bold text-white flex items-center gap-2">
+                        <Wand2 className="text-secondary" /> Aura AI <span className="text-secondary">✨</span>
+                    </h3>
+                )}
                 {step !== 'upload' && (
                     <button onClick={resetProcess} className="text-xs text-secondary font-space uppercase tracking-widest hover:text-white transition-colors">Start Over</button>
                 )}

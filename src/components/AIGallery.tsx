@@ -32,7 +32,7 @@ export function AIGallery() {
             <div className="container-custom">
                 <div className="text-center mb-16">
                     <h4 className="font-space text-xs font-bold uppercase tracking-widest text-secondary mb-4">Aura AI Showcase</h4>
-                    <h2 className="text-4xl md:text-5xl xl:text-6xl font-playfair font-bold mb-6">
+                    <h2 className="text-3xl md:text-4xl xl:text-5xl font-playfair font-bold mb-6">
                         Designs Created with <span className="text-secondary italic">Aura AI</span>
                     </h2>
                     <p className="font-inter text-white/60 max-w-2xl mx-auto text-lg">
