@@ -15,6 +15,7 @@ export interface DetectedObject {
     bbox: number[];
     confidence?: number;
     suggestedSKU?: string;
+    dimensions?: string;
 }
 
 export interface ArchitecturalElement {

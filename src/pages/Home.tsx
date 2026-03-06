@@ -66,58 +66,73 @@ const Home = () => {
                 schema={[localBusinessSchema]}
             />
             {/* Hero Section */}
-            <section ref={heroRef} className="relative min-h-[100dvh] flex flex-col lg:flex-row overflow-hidden bg-primary items-center py-24 md:py-0">
-                {/* Background Image Layer */}
-                <div className="absolute inset-0 z-0">
+            <section ref={heroRef} className="relative min-h-screen flex flex-col lg:flex-row overflow-hidden bg-[#0A0A0A] items-center pt-32 lg:pt-0 pb-12 lg:pb-0">
+                {/* Background Design Elements */}
+                <div className="absolute inset-0 z-0 pointer-events-none">
+                    <div className="absolute top-0 right-0 w-[60%] h-full bg-secondary/5 blur-[120px] rounded-full translate-x-1/2 -translate-y-1/2" />
+                    <div className="absolute bottom-0 left-0 w-[40%] h-[60%] bg-blue-500/5 blur-[120px] rounded-full -translate-x-1/2 translate-y-1/2" />
                     <img
                         src="images/services/residential-projects/img(18).webp"
-                        alt="Luxury Living Room"
-                        className="w-full h-full object-cover opacity-10"
+                        alt="Background"
+                        className="w-full h-full object-cover opacity-20 grayscale brightness-50"
                     />
-                    <div className="absolute inset-0 bg-gradient-to-r from-primary via-primary/95 to-primary/40"></div>
+                    <div className="absolute inset-0 bg-gradient-to-tr from-black via-black/90 to-transparent" />
                 </div>
 
-                {/* Content Area */}
-                <div className="w-full lg:w-1/2 min-h-[55vh] lg:min-h-screen flex items-center p-6 sm:p-12 xl:p-20 relative z-10 order-2 lg:order-1">
+                {/* Left Column: Narrative */}
+                <div className="w-full lg:w-[45%] flex items-center p-8 lg:p-20 xl:p-24 relative z-10 order-1">
                     <motion.div
-                        initial={{ opacity: 0, y: 30 }}
-                        animate={{ opacity: 1, y: 0 }}
+                        initial={{ opacity: 0, x: -30 }}
+                        animate={{ opacity: 1, x: 0 }}
                         transition={{ duration: 1, delay: 0.2 }}
-                        className="space-y-6 md:space-y-10 w-full"
+                        className="space-y-8"
                     >
-                        <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-secondary/10 border border-secondary/20 text-secondary text-[10px] md:text-xs font-space uppercase tracking-widest font-bold">
-                            <Star size={14} className="fill-secondary" /> Introducing Aura AI
+                        <div className="inline-flex items-center gap-2 px-5 py-2.5 rounded-full bg-white/5 border border-white/10 text-secondary text-[10px] md:text-xs font-space uppercase tracking-widest font-bold backdrop-blur-md">
+                            <Wand2 size={14} className="animate-pulse" /> Next-Gen AI Design Studio
                         </div>
-                        <h1 className="text-4xl sm:text-5xl md:text-6xl xl:text-7xl font-playfair font-bold text-white leading-[1.1]">
-                            See Your Dream <br />
-                            Home <span className="text-secondary italic font-normal">Before</span> <br />
-                            It's Built.
-                        </h1>
-                        <p className="text-white/60 font-inter text-sm md:text-lg max-w-xl leading-relaxed">
-                            Upload a sketch, photo, or floor plan. Get a photorealistic 3D render with SMM furniture in 30 seconds.
-                        </p>
 
-                        <div className="flex flex-col sm:flex-row gap-4 pt-4">
-                            <Link to="/aura-ai" className="btn-primary w-full sm:w-auto text-center">
-                                Explore Aura AI
-                                <ArrowRight size={18} className="group-hover:translate-x-2 transition-transform" />
+                        <div className="space-y-4">
+                            <h1 className="text-5xl md:text-7xl xl:text-8xl font-playfair font-bold text-white leading-[1.05] tracking-tight">
+                                Visualize<br />
+                                Perfection <span className="text-secondary italic font-normal">Fast.</span>
+                            </h1>
+                            <p className="text-white/50 font-inter text-lg md:text-xl max-w-lg leading-relaxed">
+                                SMM Aura AI brings your vision to life in 30 seconds. Upload any plan and experience photorealistic interiors tailored to your space.
+                            </p>
+                        </div>
+
+                        <div className="flex flex-col sm:flex-row gap-5 pt-6">
+                            <Link to="/aura-ai" className="group flex items-center justify-center gap-3 bg-secondary text-primary px-10 py-6 rounded-2xl font-space font-bold uppercase tracking-widest text-xs hover:bg-white transition-all shadow-xl shadow-secondary/10">
+                                Launch Aura AI <ArrowRight size={18} className="group-hover:translate-x-2 transition-transform" />
                             </Link>
-                            <button onClick={() => setIsLeadModalOpen(true)} className="btn-outline border-white/20 hover:border-white w-full sm:w-auto text-center text-white">
-                                Book Free Consult
+                            <button onClick={() => setIsLeadModalOpen(true)} className="flex items-center justify-center gap-3 bg-white/5 border border-white/10 text-white px-10 py-6 rounded-2xl font-space font-bold uppercase tracking-widest text-xs hover:bg-white/10 transition-all backdrop-blur-md">
+                                Expert Consult
                             </button>
+                        </div>
+
+                        <div className="flex items-center gap-8 pt-10 border-t border-white/5">
+                            <div className="space-y-1">
+                                <p className="text-2xl font-bold text-white font-playfair">15k+</p>
+                                <p className="text-[10px] text-white/40 uppercase tracking-widest font-space">AI Renders</p>
+                            </div>
+                            <div className="w-px h-10 bg-white/10" />
+                            <div className="space-y-1">
+                                <p className="text-2xl font-bold text-white font-playfair">98%</p>
+                                <p className="text-[10px] text-white/40 uppercase tracking-widest font-space">Accuracy</p>
+                            </div>
                         </div>
                     </motion.div>
                 </div>
 
-                {/* AI Widget Area */}
-                <div className="w-full lg:w-1/2 flex items-center justify-center p-6 sm:p-12 xl:p-20 relative z-10 order-1 lg:order-2">
+                {/* Right Column: Interaction */}
+                <div className="w-full lg:w-[55%] flex items-center justify-center p-6 lg:p-20 relative z-10 order-2">
                     <motion.div
-                        initial={{ opacity: 0, scale: 0.95 }}
+                        initial={{ opacity: 0, scale: 0.9 }}
                         animate={{ opacity: 1, scale: 1 }}
-                        transition={{ duration: 0.8, delay: 0.4 }}
-                        className="w-full max-w-lg"
+                        transition={{ duration: 1, delay: 0.4 }}
+                        className="w-full max-w-2xl"
                     >
-                        <AuraAIWidget variant="hero" />
+                        <AuraAIWidget variant="hero" showHeroText={false} />
                     </motion.div>
                 </div>
             </section>

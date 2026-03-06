@@ -11,9 +11,10 @@ import type { AnalysisResult, RenderVariation } from '../types/aura';
 
 interface AuraAIWidgetProps {
     variant?: 'hero' | 'floating' | 'fullscreen';
+    showHeroText?: boolean;
 }
 
-export function AuraAIWidget({ variant = 'hero' }: AuraAIWidgetProps) {
+export function AuraAIWidget({ variant = 'hero', showHeroText = true }: AuraAIWidgetProps) {
     const navigate = useNavigate();
     const [step, setStep] = useState<'upload' | 'analyzing' | 'vastu' | 'rendering' | 'result'>('upload');
     const [uploadedImage, setUploadedImage] = useState<string | null>(null);
@@ -173,29 +174,93 @@ export function AuraAIWidget({ variant = 'hero' }: AuraAIWidgetProps) {
         }
     };
 
-    const BoundingBoxes = ({ objects, visible }: { objects: any[], visible: boolean }) => (
-        <AnimatePresence>
-            {visible && objects.map((obj, i) => {
-                const [ymin, xmin, ymax, xmax] = obj.bbox;
-                return (
-                    <motion.div key={i}
-                        initial={{ opacity: 0, scale: 0.8 }}
-                        animate={{ opacity: 1, scale: 1 }}
-                        className="absolute border-2 border-secondary bg-secondary/10 flex items-center justify-center"
-                        style={{
-                            top: `${ymin / 10}%`,
-                            left: `${xmin / 10}%`,
-                            width: `${(xmax - xmin) / 10}%`,
-                            height: `${(ymax - ymin) / 10}%`,
-                        }}>
-                        <div className="bg-secondary text-primary text-[6px] font-bold px-1 uppercase whitespace-nowrap -top-3 absolute">
-                            {obj.object}
-                        </div>
-                    </motion.div>
-                );
-            })}
-        </AnimatePresence>
-    );
+    const MappingView = ({ image, objects }: { image: string, objects: any[] }) => {
+        const [imageBounds, setImageBounds] = useState({ top: 0, left: 0, width: 100, height: 100 });
+        const imgRef = useRef<HTMLImageElement>(null);
+
+        const updateBounds = () => {
+            if (!imgRef.current) return;
+            const { clientWidth, clientHeight, naturalWidth, naturalHeight } = imgRef.current;
+            if (!naturalWidth || !naturalHeight) return;
+
+            const imageAspect = naturalWidth / naturalHeight;
+            const containerAspect = clientWidth / clientHeight;
+
+            let renderWidth, renderHeight, renderLeft, renderTop;
+
+            if (imageAspect > containerAspect) {
+                renderWidth = clientWidth;
+                renderHeight = clientWidth / imageAspect;
+                renderLeft = 0;
+                renderTop = (clientHeight - renderHeight) / 2;
+            } else {
+                renderHeight = clientHeight;
+                renderWidth = clientHeight * imageAspect;
+                renderTop = 0;
+                renderLeft = (clientWidth - renderWidth) / 2;
+            }
+
+            setImageBounds({
+                top: (renderTop / clientHeight) * 100,
+                left: (renderLeft / clientWidth) * 100,
+                width: (renderWidth / clientWidth) * 100,
+                height: (renderHeight / clientHeight) * 100
+            });
+        };
+
+        useEffect(() => {
+            updateBounds();
+            window.addEventListener('resize', updateBounds);
+            return () => window.removeEventListener('resize', updateBounds);
+        }, [image]);
+
+        return (
+            <div className="absolute inset-0 flex items-center justify-center overflow-hidden">
+                <img 
+                    ref={imgRef}
+                    src={image} 
+                    alt="Mapping Source" 
+                    className="w-full h-full object-contain"
+                    onLoad={updateBounds}
+                />
+                
+                <div className="absolute inset-0 pointer-events-none">
+                    <AnimatePresence>
+                        {objects.map((obj, i) => {
+                            const [ymin, xmin, ymax, xmax] = obj.bbox;
+                            
+                            const boxTop = imageBounds.top + (ymin / 1000) * imageBounds.height;
+                            const boxLeft = imageBounds.left + (xmin / 1000) * imageBounds.width;
+                            const boxWidth = ((xmax - xmin) / 1000) * imageBounds.width;
+                            const boxHeight = ((ymax - ymin) / 1000) * imageBounds.height;
+
+                            return (
+                                <motion.div key={i}
+                                    initial={{ opacity: 0, scale: 0.8 }}
+                                    animate={{ opacity: 1, scale: 1 }}
+                                    className="absolute border-2 border-secondary bg-secondary/10 flex flex-col items-center justify-center shadow-[0_0_15px_rgba(212,175,55,0.3)] backdrop-blur-[1px]"
+                                    style={{
+                                        top: `${boxTop}%`,
+                                        left: `${boxLeft}%`,
+                                        width: `${boxWidth}%`,
+                                        height: `${boxHeight}%`,
+                                    }}>
+                                    <div className="bg-secondary text-primary text-[8px] font-bold px-2 py-0.5 uppercase whitespace-nowrap -top-5 absolute rounded shadow-xl border border-white/20">
+                                        {obj.object}
+                                    </div>
+                                    {obj.dimensions && (
+                                        <div className="bg-black/90 text-secondary text-[7px] font-space px-1.5 py-0.5 rounded-sm border border-secondary/30 mt-1 shadow-lg">
+                                            {obj.dimensions}
+                                        </div>
+                                    )}
+                                </motion.div>
+                            );
+                        })}
+                    </AnimatePresence>
+                </div>
+            </div>
+        );
+    };
 
     const onDrop = useCallback((acceptedFiles: File[]) => {
         if (acceptedFiles.length > 0) {
@@ -491,10 +556,12 @@ export function AuraAIWidget({ variant = 'hero' }: AuraAIWidgetProps) {
                 {/* === STEP 1: UPLOAD === */}
                 {step === 'upload' && (
                     <motion.div key="upload" initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, scale: 0.95 }} className="space-y-8">
-                        <div className="text-center space-y-2 mb-8">
-                            <h2 className="text-3xl md:text-5xl font-playfair font-bold text-white">See Your Dream Home in 30 Seconds</h2>
-                            <p className="text-secondary/60 font-space uppercase tracking-[0.2em] text-[10px]">Instant AI Design • Vastu Audit • SMM Catalog Integration</p>
-                        </div>
+                        {showHeroText && (
+                            <div className="text-center space-y-2 mb-8">
+                                <h2 className="text-3xl md:text-5xl font-playfair font-bold text-white">See Your Dream Home in 30 Seconds</h2>
+                                <p className="text-secondary/60 font-space uppercase tracking-[0.2em] text-[10px]">Instant AI Design • Vastu Audit • SMM Catalog Integration</p>
+                            </div>
+                        )}
 
                         {/* Drop Zone */}
                         <div {...getRootProps()}
@@ -626,8 +693,8 @@ export function AuraAIWidget({ variant = 'hero' }: AuraAIWidgetProps) {
                         <div className="flex flex-wrap gap-2 justify-center">
                             {analysis.flags?.map((flag, idx) => (
                                 <div key={idx} className={`flex items-center gap-2 px-4 py-2 rounded-full border text-[10px] font-space uppercase tracking-widest font-bold ${flag.status === 'Good' ? 'border-green-500/30 bg-green-500/10 text-green-400' :
-                                        flag.status === 'Warning' ? 'border-yellow-500/30 bg-yellow-500/10 text-yellow-400' :
-                                            'border-blue-500/30 bg-blue-500/10 text-blue-400'
+                                    flag.status === 'Warning' ? 'border-yellow-500/30 bg-yellow-500/10 text-yellow-400' :
+                                        'border-blue-500/30 bg-blue-500/10 text-blue-400'
                                     }`}>
                                     <div className={`w-1.5 h-1.5 rounded-full ${flag.status === 'Good' ? 'bg-green-500' : flag.status === 'Warning' ? 'bg-yellow-500' : 'bg-blue-500'}`} />
                                     {flag.category}: {flag.text}
@@ -637,10 +704,9 @@ export function AuraAIWidget({ variant = 'hero' }: AuraAIWidgetProps) {
 
                         {/* Uploaded Image Small */}
                         {uploadedImage && (
-                            <div className="relative aspect-[21/9] rounded-3xl overflow-hidden border border-white/10 group cursor-zoom-in" onClick={() => setLightboxImage(uploadedImage)}>
-                                <img src={uploadedImage} alt="Your upload" className="w-full h-full object-contain bg-black/50" />
-                                <BoundingBoxes objects={analysis.objects} visible={true} />
-                                <div className="absolute top-4 left-4 bg-secondary/90 text-primary text-[10px] font-space uppercase tracking-widest px-4 py-1.5 rounded-full font-bold shadow-2xl">
+                            <div className="relative aspect-[21/9] rounded-3xl overflow-hidden border border-white/10 group bg-black/50" onClick={() => setLightboxImage(uploadedImage)}>
+                                <MappingView image={uploadedImage} objects={analysis.objects} />
+                                <div className="absolute top-4 left-4 bg-secondary/90 text-primary text-[10px] font-space uppercase tracking-widest px-4 py-1.5 rounded-full font-bold shadow-2xl z-20">
                                     Spatial Analysis Mapping
                                 </div>
                             </div>
@@ -717,14 +783,10 @@ export function AuraAIWidget({ variant = 'hero' }: AuraAIWidgetProps) {
                         {/* Before / After Comparison */}
                         <div className="grid grid-cols-2 gap-4">
                             {/* Original Upload */}
-                            <div className="relative aspect-[4/3] rounded-2xl overflow-hidden border border-white/10 group cursor-zoom-in" onClick={() => setLightboxImage(uploadedImage)}>
-                                <img src={uploadedImage || ''} alt="Original" className="w-full h-full object-contain bg-black/50" />
-                                <BoundingBoxes objects={analysis.objects} visible={true} />
-                                <div className="absolute top-3 left-3 bg-white/10 backdrop-blur-md text-white text-[10px] font-space uppercase tracking-widest px-3 py-1.5 rounded-full border border-white/20">
-                                    Sketch Mapping
-                                </div>
-                                <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
-                                    <Eye className="text-white" size={24} />
+                            <div className="relative aspect-[4/3] rounded-2xl overflow-hidden border border-white/10 group bg-black/50" onClick={() => setLightboxImage(uploadedImage)}>
+                                <MappingView image={uploadedImage || ''} objects={analysis.objects} />
+                                <div className="absolute top-3 left-3 bg-white/10 backdrop-blur-md text-white text-[10px] font-space uppercase tracking-widest px-3 py-1.5 rounded-full border border-white/20 z-20">
+                                    Original Input
                                 </div>
                             </div>
 

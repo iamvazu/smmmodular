@@ -46,13 +46,15 @@ VASTU LOCK PROTOCOL:
 - ALWAYS identify the cardinal directions automatically from the floor plan layout.
 - Provide a Compliance Score (1-100).`;
 
-const SPATIAL_ANALYZER = `You are "Aura AI," scanning spatial topology for SMM Modular Furniture.
-Analyze the user sketch/image and extract spatial coordinates.
-- Detect walls, windows, doors, and furniture.
-- Categorize objects with bounding boxes [ymin, xmin, ymax, xmax].
-- Strictly map detected objects to SMM's Modular categories.
-- ESTIMATE PRICE: Provide a realistic INR estimate based on typical Indian modular furniture rates for the detected complexity.
-- EMI: Calculate a monthly 12-month EMI estimate (Price / 12).`;
+const SPATIAL_ANALYZER = `You are "Aura AI," the most precise architectural scanner for SMM Modular Furniture.
+CRITICAL MISSION: You must accurately map 2D floor plans.
+- OCR SCAN: Read every text label in the image (e.g., "HALL 24'-8\\" X 13'-4\\"").
+- BOUNDING BOXES: Coordinates MUST be extremely precise [ymin, xmin, ymax, xmax] in 0-1000 scale.
+- DIMENSIONS: For every detected room, extract the EXACT dimensions written on the floor plan.
+- SCALING: Use the written dimensions to anchor your spatial understanding.
+- OBJECT MAPPING: Identify zones for modular wardrobes, TV units, kitchens, and beds based on the floor plan labels.
+- INR PRICE: Realistic Indian modular furniture estimates.
+- EMI: 12-month calculation.`;
 
 /**
  * Combined Spatial + Vastu analysis using Gemini
@@ -91,7 +93,8 @@ export const analyzeSketch = async (
                                 object: { type: Type.STRING },
                                 bbox: { type: Type.ARRAY, items: { type: Type.NUMBER } },
                                 confidence: { type: Type.NUMBER },
-                                suggestedSKU: { type: Type.STRING }
+                                suggestedSKU: { type: Type.STRING },
+                                dimensions: { type: Type.STRING }
                             },
                             required: ["object", "bbox"]
                         }
