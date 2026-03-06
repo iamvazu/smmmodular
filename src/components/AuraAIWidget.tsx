@@ -580,34 +580,46 @@ export function AuraAIWidget({ variant = 'hero', showHeroText = true }: AuraAIWi
 
                         {/* Pre-Processing Selectors */}
                         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3">
-                            <div className="space-y-1">
+                            <div className="space-y-1.5">
                                 <label className="text-[9px] text-white/40 font-space uppercase tracking-widest ml-1">Room Type</label>
-                                <select value={roomType} onChange={(e) => setRoomType(e.target.value)}
-                                    className="w-full bg-white/5 text-white text-xs border border-white/10 rounded-xl p-3 outline-none focus:border-secondary transition-all cursor-pointer">
-                                    <option value="living_room">Living Room</option>
-                                    <option value="bedroom">Master Bedroom</option>
-                                    <option value="kitchen">Modular Kitchen</option>
-                                    <option value="entire_home">Full Floor Plan</option>
-                                </select>
+                                <div className="relative">
+                                    <select value={roomType} onChange={(e) => setRoomType(e.target.value)}
+                                        className="w-full bg-white/5 text-white text-[11px] border border-white/10 rounded-xl px-4 h-[52px] outline-none focus:border-secondary transition-all cursor-pointer appearance-none">
+                                        <option value="living_room">Living Room</option>
+                                        <option value="bedroom">Master Bedroom</option>
+                                        <option value="kitchen">Modular Kitchen</option>
+                                        <option value="entire_home">Full Floor Plan</option>
+                                    </select>
+                                    <div className="absolute right-4 top-1/2 -translate-y-1/2 pointer-events-none text-white/20">
+                                        <ChevronRight size={14} className="rotate-90" />
+                                    </div>
+                                </div>
                             </div>
-                            <div className="space-y-1">
+                            <div className="space-y-1.5">
                                 <label className="text-[9px] text-white/40 font-space uppercase tracking-widest ml-1">Design Style</label>
-                                <select value={selectedStyle} onChange={(e) => setSelectedStyle(e.target.value)}
-                                    className="w-full bg-white/5 text-white text-xs border border-white/10 rounded-xl p-3 outline-none focus:border-secondary transition-all cursor-pointer">
-                                    <option value="modern">Modern Luxury</option>
-                                    <option value="indian">Contemporary Indian</option>
-                                    <option value="scandi">Scandinavian</option>
-                                    <option value="minimal">Minimalist</option>
-                                </select>
+                                <div className="relative">
+                                    <select value={selectedStyle} onChange={(e) => setSelectedStyle(e.target.value)}
+                                        className="w-full bg-white/5 text-white text-[11px] border border-white/10 rounded-xl px-4 h-[52px] outline-none focus:border-secondary transition-all cursor-pointer appearance-none">
+                                        <option value="modern">Modern Luxury</option>
+                                        <option value="indian">Contemporary Indian</option>
+                                        <option value="scandi">Scandinavian</option>
+                                        <option value="minimal">Minimalist</option>
+                                    </select>
+                                    <div className="absolute right-4 top-1/2 -translate-y-1/2 pointer-events-none text-white/20">
+                                        <ChevronRight size={14} className="rotate-90" />
+                                    </div>
+                                </div>
                             </div>
-                            <div className="space-y-1 sm:col-span-2 md:col-span-1">
+                            <div className="space-y-1.5 sm:col-span-2 md:col-span-1">
                                 <label className="text-[9px] text-white/40 font-space uppercase tracking-widest ml-1">Vastu Mode</label>
                                 <button
                                     onClick={() => setVastuLock(!vastuLock)}
-                                    className={`w-full flex items-center justify-between border rounded-xl p-3 text-xs transition-all ${vastuLock ? 'border-secondary/50 bg-secondary/10 text-secondary' : 'border-white/10 bg-white/5 text-white/50'}`}
+                                    className={`w-full flex items-center justify-between border rounded-xl px-4 h-[52px] text-[11px] transition-all group/vastu ${vastuLock ? 'border-secondary bg-secondary/10 text-secondary' : 'border-white/10 bg-white/5 text-white/50'}`}
                                 >
                                     <span className="font-space font-bold uppercase tracking-widest">Vastu Lock</span>
-                                    <CheckCircle2 size={14} className={vastuLock ? 'opacity-100' : 'opacity-0'} />
+                                    <div className={`flex items-center justify-center w-6 h-6 rounded-full border transition-all ${vastuLock ? 'border-secondary bg-secondary text-primary' : 'border-white/20'}`}>
+                                        <ArrowRight size={12} className={vastuLock ? 'opacity-100' : 'opacity-40'} />
+                                    </div>
                                 </button>
                             </div>
                         </div>
@@ -617,7 +629,7 @@ export function AuraAIWidget({ variant = 'hero', showHeroText = true }: AuraAIWi
                                 <div className="text-center">
                                     <p className="text-xl font-bold text-white">2,500+</p>
                                     <p className="text-[8px] text-white/40 uppercase tracking-widest">Designs Sent</p>
-                                </div>
+                                </div >
                                 <div className="w-px h-8 bg-white/10" />
                                 <div className="text-center">
                                     <p className="text-xl font-bold text-white">15 Min</p>
@@ -625,7 +637,7 @@ export function AuraAIWidget({ variant = 'hero', showHeroText = true }: AuraAIWi
                                 </div>
                             </div>
                             <div className="text-right">
-                                <p className="text-[10px] text-secondary font-bold font-space uppercase tracking-widest">First 3 Designs Free</p>
+                                <p className="text-[10px] text-secondary font-bold font-space uppercase tracking-widest">First 2 Designs Free</p>
                                 <p className="text-[9px] text-white/40">No credit card required</p>
                             </div>
                         </div>

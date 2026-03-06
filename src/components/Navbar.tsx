@@ -43,12 +43,12 @@ const Navbar = () => {
                 </Link>
 
                 {/* Desktop Navigation */}
-                <div className="hidden 2xl:flex items-center space-x-8">
+                <div className="hidden 2xl:flex items-center space-x-6">
                     {navLinks.map((link) => (
                         <Link
                             key={link.path}
                             to={link.path}
-                            className={`font-space text-[11px] font-bold uppercase tracking-[0.15em] transition-all duration-300 relative group shrink-0 ${location.pathname === link.path ? 'text-secondary' : (link.isAura ? 'text-secondary animate-pulse hover:text-white' : 'text-white/70 hover:text-white')}`}
+                            className={`font-space text-[10px] font-bold uppercase tracking-[0.1em] transition-all duration-300 relative group shrink-0 ${location.pathname === link.path ? 'text-secondary' : (link.isAura ? 'text-secondary animate-pulse hover:text-white' : 'text-white/70 hover:text-white')}`}
                         >
                             {link.name}
                             <span className={`absolute -bottom-2 left-0 h-[1px] bg-secondary transition-all duration-300 ${location.pathname === link.path ? 'w-full' : 'w-0 group-hover:w-full'}`}></span>
@@ -56,10 +56,10 @@ const Navbar = () => {
                     ))}
                     <a
                         href="tel:+917624997792"
-                        className="flex items-center space-x-2 bg-secondary text-primary px-5 py-3 font-space text-[10px] font-bold uppercase tracking-widest hover:bg-white transition-all duration-500 shrink-0 shadow-lg shadow-secondary/10"
+                        className="flex items-center space-x-2 bg-secondary text-primary px-4 py-2.5 font-space text-[9px] font-bold uppercase tracking-widest hover:bg-white transition-all duration-500 shrink-0 shadow-lg shadow-secondary/10"
                     >
-                        <Phone size={12} className="fill-primary" />
-                        <span className="hidden mb:inline">Consult Now</span>
+                        <Phone size={10} className="fill-primary" />
+                        <span>Consult Now</span>
                     </a>
                 </div>
 
@@ -74,7 +74,6 @@ const Navbar = () => {
                             {link.name}
                         </Link>
                     ))}
-                    <Link to="/aura-ai" className="text-secondary font-bold text-[10px] uppercase">Aura AI ✨</Link>
                     <a href="tel:+917624997792" className="bg-secondary text-primary px-3 py-2 rounded-lg text-[9px] font-bold">CONTACT</a>
                 </div>
 

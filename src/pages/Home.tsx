@@ -66,7 +66,7 @@ const Home = () => {
                 schema={[localBusinessSchema]}
             />
             {/* Hero Section */}
-            <section className="relative min-h-[90vh] lg:min-h-screen flex flex-col lg:flex-row items-center pt-20 lg:pt-0 overflow-hidden bg-primary w-full">
+            <section className="relative min-h-[90vh] lg:min-h-screen flex flex-col lg:flex-row items-center pt-20 lg:pt-0 overflow-hidden bg-primary w-full overflow-x-hidden">
                 {/* Background Decor */}
                 <div className="absolute inset-0 z-0 pointer-events-none">
                     <div className="absolute top-0 right-0 w-1/2 h-full bg-gradient-to-l from-white/[0.02] to-transparent" />
